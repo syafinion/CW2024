@@ -29,10 +29,11 @@ public class LevelTwo extends LevelParent {
 
 	@Override
 	protected void spawnEnemyUnits() {
-		if (getCurrentNumberOfEnemies() == 0) {
-			addEnemyUnit(boss);
+		if (getCurrentNumberOfEnemies() == 0 && !boss.isDestroyed()) {
+			addEnemyUnit(boss);  // Only add the boss once if not destroyed
 		}
 	}
+
 
 	@Override
 	protected LevelView instantiateLevelView() {

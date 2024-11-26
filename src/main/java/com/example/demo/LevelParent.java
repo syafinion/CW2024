@@ -154,9 +154,10 @@ public abstract class LevelParent extends Observable {
 	private void removeDestroyedActors(List<ActiveActorDestructible> actors) {
 		List<ActiveActorDestructible> destroyedActors = actors.stream().filter(actor -> actor.isDestroyed())
 				.collect(Collectors.toList());
-		root.getChildren().removeAll(destroyedActors);
-		actors.removeAll(destroyedActors);
+		root.getChildren().removeAll(destroyedActors);  // Remove destroyed actors from the scene
+		actors.removeAll(destroyedActors);  // Remove destroyed actors from the list
 	}
+
 
 	private void handlePlaneCollisions() {
 		handleCollisions(friendlyUnits, enemyUnits);
