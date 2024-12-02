@@ -9,7 +9,8 @@ public class Boss extends FighterPlane {
 	private static final double INITIAL_Y_POSITION = 400;
 	private static final double PROJECTILE_Y_POSITION_OFFSET = 75.0;
 	private static final double BOSS_FIRE_RATE = .04;
-	private static final double BOSS_SHIELD_PROBABILITY = .002;
+	private static final double BOSS_SHIELD_PROBABILITY = 0.2; // test
+	private static final int SHIELD_COOLDOWN_FRAMES = 300;
 	private static final int IMAGE_HEIGHT = 300;
 	private static final int VERTICAL_VELOCITY = 8;
 	private static final int HEALTH = 100;
@@ -24,9 +25,11 @@ public class Boss extends FighterPlane {
 	private int consecutiveMovesInSameDirection;
 	private int indexOfCurrentMove;
 	private int framesWithShieldActivated;
-
-	public Boss() {
+	private int shieldCooldownFrames;
+	private LevelTwo levelTwo;
+	public Boss(LevelTwo levelTwo) {
 		super(IMAGE_NAME, IMAGE_HEIGHT, INITIAL_X_POSITION, INITIAL_Y_POSITION, HEALTH);
+		this.levelTwo = levelTwo;
 		movePattern = new ArrayList<>();
 		consecutiveMovesInSameDirection = 0;
 		indexOfCurrentMove = 0;
@@ -40,16 +43,34 @@ public class Boss extends FighterPlane {
 		double initialTranslateY = getTranslateY();
 		moveVertically(getNextMove());
 		double currentPosition = getLayoutY() + getTranslateY();
+
 		if (currentPosition < Y_POSITION_UPPER_BOUND || currentPosition > Y_POSITION_LOWER_BOUND) {
 			setTranslateY(initialTranslateY);
 		}
+
+		// Dynamically track boss position for the shield
+		System.out.println("Boss position: (" + getTranslateX() + ", " + getTranslateY() + ")");
 	}
-	
+
+
 	@Override
 	public void updateActor() {
 		updatePosition();
 		updateShield();
+		notifyShieldPosition(); // Notify the LevelView about the updated shield position
+		System.out.println("Shield is " + (isShielded ? "active" : "inactive"));
 	}
+
+	private void notifyShieldPosition() {
+		if (levelTwo != null) {
+			double bossActualX = getLayoutX() + getTranslateX();
+			double bossActualY = getLayoutY() + getTranslateY();
+			levelTwo.updateBossShieldPosition(bossActualX, bossActualY);
+		}
+	}
+
+
+
 
 	@Override
 	public ActiveActorDestructible fireProjectile() {
@@ -73,10 +94,25 @@ public class Boss extends FighterPlane {
 	}
 
 	private void updateShield() {
-		if (isShielded) framesWithShieldActivated++;
-		else if (shieldShouldBeActivated()) activateShield();	
-		if (shieldExhausted()) deactivateShield();
+		if (isShielded) {
+			framesWithShieldActivated++;
+			System.out.println("Shield active. Frame count: " + framesWithShieldActivated);
+			if (shieldExhausted()) {
+				deactivateShield();
+			}
+		} else {
+			// Reduce cooldown timer if shield is not active
+			if (shieldCooldownFrames > 0) {
+				shieldCooldownFrames--;
+			} else if (shieldShouldBeActivated()) {
+				activateShield();
+			}
+		}
+		System.out.println("Shield is " + (isShielded ? "active" : "inactive") + ", Cooldown: " + shieldCooldownFrames);
 	}
+
+
+
 
 	private int getNextMove() {
 		int currentMove = movePattern.get(indexOfCurrentMove);
@@ -100,21 +136,52 @@ public class Boss extends FighterPlane {
 		return getLayoutY() + getTranslateY() + PROJECTILE_Y_POSITION_OFFSET;
 	}
 
+//	private boolean shieldShouldBeActivated() {
+//		boolean shouldActivate = Math.random() < BOSS_SHIELD_PROBABILITY && getHealth() <= 50;
+//		System.out.println("Shield activation condition met: " + shouldActivate);
+//		return shouldActivate;
+//	}
+
 	private boolean shieldShouldBeActivated() {
-		return Math.random() < BOSS_SHIELD_PROBABILITY;
+		// Activate the shield when:
+		// 1. The boss's health is below 75%, AND
+		// 2. A random chance based on the configured BOSS_SHIELD_PROBABILITY, AND
+		// 3. No cooldown is in effect.
+		boolean shouldActivate = getHealth() <= 75 && Math.random() < BOSS_SHIELD_PROBABILITY && shieldCooldownFrames == 0;
+		System.out.println("Shield activation condition met: " + shouldActivate);
+		return shouldActivate;
 	}
 
+	// Testing
+//private boolean shieldShouldBeActivated() {
+//	return getHealth() <= 99; // Trigger shield when health is 50 or below
+//}
+
 	private boolean shieldExhausted() {
-		return framesWithShieldActivated == MAX_FRAMES_WITH_SHIELD;
+		// Deactivate the shield after it has been active for a fixed duration of 400 frames.
+		return framesWithShieldActivated >= 400; // You can adjust this value as needed
 	}
 
 	private void activateShield() {
 		isShielded = true;
+		framesWithShieldActivated = 0; // Reset the activation frame count
+		System.out.println("Shield activated!");
 	}
 
 	private void deactivateShield() {
 		isShielded = false;
-		framesWithShieldActivated = 0;
+		shieldCooldownFrames = SHIELD_COOLDOWN_FRAMES; // Start cooldown period
+		System.out.println("Shield deactivated! Cooldown started.");
 	}
+
+	public int getHealth() {
+		return super.getHealth(); // or just return getHealth();
+	}
+
+
+	public boolean isShielded() {
+		return isShielded;
+	}
+
 
 }

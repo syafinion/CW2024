@@ -4,8 +4,8 @@ import javafx.scene.Group;
 
 public class LevelView {
 	
-	private static final double HEART_DISPLAY_X_POSITION = 5;
-	private static final double HEART_DISPLAY_Y_POSITION = 25;
+	protected static final double HEART_DISPLAY_X_POSITION = 5;
+	protected static final double HEART_DISPLAY_Y_POSITION = 25;
 	private static final int WIN_IMAGE_X_POSITION = 355;
 	private static final int WIN_IMAGE_Y_POSITION = 175;
 	private static final int LOSS_SCREEN_X_POSITION = -160;

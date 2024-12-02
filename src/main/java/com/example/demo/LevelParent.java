@@ -32,6 +32,7 @@ public abstract class LevelParent extends Observable {
 	
 	private int currentNumberOfEnemies;
 	private LevelView levelView;
+	protected Boss boss;
 
 	public LevelParent(String backgroundImageName, double screenHeight, double screenWidth, int playerInitialHealth) {
 		this.root = new Group();
@@ -196,9 +197,21 @@ public abstract class LevelParent extends Observable {
 		}
 	}
 
-	private void updateLevelView() {
+	protected void updateLevelView() {
 		levelView.removeHearts(user.getHealth());
+		if (levelView instanceof LevelViewLevelTwo && boss != null) { // Null check for boss
+			LevelViewLevelTwo levelTwoView = (LevelViewLevelTwo) levelView;
+			levelTwoView.updateBossHealthBar(boss.getHealth(), 100);
+			levelTwoView.updateShieldPosition(boss.getTranslateX(), boss.getTranslateY());
+			if (boss.isShielded()) {
+				levelTwoView.showShield();
+			} else {
+				levelTwoView.hideShield();
+			}
+		}
+		System.out.println("LevelView updated: Boss health and shield status.");
 	}
+
 
 	private void updateKillCount() {
 		for (int i = 0; i < currentNumberOfEnemies - enemyUnits.size(); i++) {
