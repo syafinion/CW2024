@@ -74,8 +74,13 @@ public abstract class LevelParent extends Observable {
 	}
 
 	public void goToNextLevel(String levelName) {
+		timeline.stop();
 		setChanged();
 		notifyObservers(levelName);
+	}
+
+	public void stop() {
+		timeline.stop();
 	}
 
 	private void updateScene() {
