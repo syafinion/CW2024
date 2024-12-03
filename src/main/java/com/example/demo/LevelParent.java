@@ -3,6 +3,7 @@ package com.example.demo;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.example.demo.controller.PauseMenu;
 import javafx.animation.*;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
@@ -35,6 +36,9 @@ public abstract class LevelParent extends Observable {
 	private int currentNumberOfEnemies;
 	private LevelView levelView;
 	protected Boss boss;
+
+	private boolean isPaused = false;
+	private PauseMenu pauseMenu;
 
 	public LevelParent(String backgroundImageName, double screenHeight, double screenWidth, int playerInitialHealth) {
 		this.root = new Group();
@@ -111,22 +115,72 @@ public abstract class LevelParent extends Observable {
 		background.setFocusTraversable(true);
 		background.setFitHeight(screenHeight);
 		background.setFitWidth(screenWidth);
-		background.setOnKeyPressed(new EventHandler<KeyEvent>() {
-			public void handle(KeyEvent e) {
-				KeyCode kc = e.getCode();
-				if (kc == KeyCode.UP) user.moveUp();
-				if (kc == KeyCode.DOWN) user.moveDown();
-				if (kc == KeyCode.SPACE) fireProjectile();
-			}
+
+		background.setOnKeyPressed(e -> {
+			KeyCode kc = e.getCode();
+			if (kc == KeyCode.UP) user.moveUp();
+			if (kc == KeyCode.DOWN) user.moveDown();
+			if (kc == KeyCode.SPACE) fireProjectile();
+			if (kc == KeyCode.ESCAPE) togglePause(); // Toggle pause on Escape key
 		});
-		background.setOnKeyReleased(new EventHandler<KeyEvent>() {
-			public void handle(KeyEvent e) {
-				KeyCode kc = e.getCode();
-				if (kc == KeyCode.UP || kc == KeyCode.DOWN) user.stop();
-			}
+
+		background.setOnKeyReleased(e -> {
+			KeyCode kc = e.getCode();
+			if (kc == KeyCode.UP || kc == KeyCode.DOWN) user.stop();
 		});
+
 		root.getChildren().add(background);
 	}
+
+	private void togglePause() {
+		if (isPaused) {
+			resumeGame();
+		} else {
+			pauseGame();
+		}
+	}
+
+	public void pauseGame() {
+		isPaused = true;
+		timeline.pause();
+
+		if (pauseMenu == null) {
+			pauseMenu = new PauseMenu(
+					screenWidth,
+					screenHeight,
+					this::resumeGame,
+					this::restartLevel,
+					this::goToMainMenu
+			);
+		}
+
+		root.getChildren().add(pauseMenu.getRoot());
+	}
+
+
+	public void resumeGame() {
+		isPaused = false;
+		timeline.play();
+
+		if (pauseMenu != null) {
+			root.getChildren().remove(pauseMenu.getRoot());
+		}
+	}
+
+	public void restartLevel() {
+		timeline.stop();
+		// Restart the current level
+		setChanged();
+		notifyObservers(this.getClass().getName());
+	}
+
+	public void goToMainMenu() {
+		timeline.stop();
+		setChanged();
+		notifyObservers("MAIN_MENU"); // Use a constant string identifier for the main menu
+	}
+
+
 
 	private void fireProjectile() {
 		ActiveActorDestructible projectile = user.fireProjectile();

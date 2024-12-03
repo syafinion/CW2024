@@ -45,6 +45,10 @@ public class Controller implements Observer {
 
 	private void goToLevel(String className) throws ClassNotFoundException, NoSuchMethodException, SecurityException,
 			InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		if (className.equals("MAIN_MENU")) {
+			showMainMenu(); // Call the method to show the main menu directly
+			return;
+		}
 		if (currentLevel != null) {
 			currentLevel.stop(); // Stop the timeline of the current level
 		}
