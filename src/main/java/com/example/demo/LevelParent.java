@@ -9,6 +9,8 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.image.*;
 import javafx.scene.input.*;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
 public abstract class LevelParent extends Observable {
@@ -143,12 +145,45 @@ public abstract class LevelParent extends Observable {
 		}
 	}
 
+//	private void updateActors() {
+//		friendlyUnits.forEach(plane -> plane.updateActor());
+//		enemyUnits.forEach(enemy -> enemy.updateActor());
+//		userProjectiles.forEach(projectile -> projectile.updateActor());
+//		enemyProjectiles.forEach(projectile -> projectile.updateActor());
+//	}
+
+	private final Map<ActiveActorDestructible, Rectangle> boundingBoxHighlights = new HashMap<>();
+
+	// TESTING
 	private void updateActors() {
-		friendlyUnits.forEach(plane -> plane.updateActor());
-		enemyUnits.forEach(enemy -> enemy.updateActor());
+		friendlyUnits.forEach(plane -> {
+			plane.updateActor();
+			// Update bounding box visualization
+			Rectangle highlight = boundingBoxHighlights.computeIfAbsent(plane, p -> {
+				Rectangle rect = new Rectangle();
+				rect.setStroke(Color.RED);
+				rect.setFill(Color.TRANSPARENT);
+				root.getChildren().add(rect);
+				return rect;
+			});
+			plane.updateBoundingBoxHighlight(highlight);
+		});
+		enemyUnits.forEach(enemy -> {
+			enemy.updateActor();
+			// Update bounding box visualization
+			Rectangle highlight = boundingBoxHighlights.computeIfAbsent(enemy, e -> {
+				Rectangle rect = new Rectangle();
+				rect.setStroke(Color.RED);
+				rect.setFill(Color.TRANSPARENT);
+				root.getChildren().add(rect);
+				return rect;
+			});
+			enemy.updateBoundingBoxHighlight(highlight);
+		});
 		userProjectiles.forEach(projectile -> projectile.updateActor());
 		enemyProjectiles.forEach(projectile -> projectile.updateActor());
 	}
+
 
 	private void removeAllDestroyedActors() {
 		removeDestroyedActors(friendlyUnits);
@@ -157,9 +192,26 @@ public abstract class LevelParent extends Observable {
 		removeDestroyedActors(enemyProjectiles);
 	}
 
+//	private void removeDestroyedActors(List<ActiveActorDestructible> actors) {
+//		List<ActiveActorDestructible> destroyedActors = actors.stream().filter(actor -> actor.isDestroyed())
+//				.collect(Collectors.toList());
+//		root.getChildren().removeAll(destroyedActors);
+//		actors.removeAll(destroyedActors);
+//	}
+
+	//TESTING DEBUG
+	// Remove bounding boxes when an actor is destroyed
 	private void removeDestroyedActors(List<ActiveActorDestructible> actors) {
-		List<ActiveActorDestructible> destroyedActors = actors.stream().filter(actor -> actor.isDestroyed())
+		List<ActiveActorDestructible> destroyedActors = actors.stream()
+				.filter(ActiveActorDestructible::isDestroyed)
 				.collect(Collectors.toList());
+		destroyedActors.forEach(actor -> {
+			// Remove bounding box visualization
+			Rectangle highlight = boundingBoxHighlights.remove(actor);
+			if (highlight != null) {
+				root.getChildren().remove(highlight);
+			}
+		});
 		root.getChildren().removeAll(destroyedActors);
 		actors.removeAll(destroyedActors);
 	}
@@ -176,17 +228,29 @@ public abstract class LevelParent extends Observable {
 		handleCollisions(enemyProjectiles, friendlyUnits);
 	}
 
-	private void handleCollisions(List<ActiveActorDestructible> actors1,
-			List<ActiveActorDestructible> actors2) {
+//	private void handleCollisions(List<ActiveActorDestructible> actors1,
+//			List<ActiveActorDestructible> actors2) {
+//		for (ActiveActorDestructible actor : actors2) {
+//			for (ActiveActorDestructible otherActor : actors1) {
+//				if (actor.getBoundsInParent().intersects(otherActor.getBoundsInParent())) {
+//					actor.takeDamage();
+//					otherActor.takeDamage();
+//				}
+//			}
+//		}
+//	}
+
+	private void handleCollisions(List<ActiveActorDestructible> actors1, List<ActiveActorDestructible> actors2) {
 		for (ActiveActorDestructible actor : actors2) {
 			for (ActiveActorDestructible otherActor : actors1) {
-				if (actor.getBoundsInParent().intersects(otherActor.getBoundsInParent())) {
+				if (actor.getAdjustedBounds().intersects(otherActor.getAdjustedBounds())) {
 					actor.takeDamage();
 					otherActor.takeDamage();
 				}
 			}
 		}
 	}
+
 
 	private void handleEnemyPenetration() {
 		for (ActiveActorDestructible enemy : enemyUnits) {
