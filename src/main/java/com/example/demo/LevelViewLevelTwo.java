@@ -23,7 +23,7 @@ public class LevelViewLevelTwo extends LevelView {
 		this.root = root;
 
 		// Initialize shield
-		this.shieldImage = new ShieldImage(1150, 200); // Position above boss
+		this.shieldImage = new ShieldImage(600, 100); // Position above boss
 
 		double healthBarXPosition = HEART_DISPLAY_X_POSITION + 900; // Adjust this value as needed
 		double healthBarYPosition = HEART_DISPLAY_Y_POSITION;
