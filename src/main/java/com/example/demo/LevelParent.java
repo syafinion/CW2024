@@ -220,9 +220,56 @@ public abstract class LevelParent extends Observable {
 		handleCollisions(friendlyUnits, enemyUnits);
 	}
 
+	// OLD CODE
+//	private void handleUserProjectileCollisions() {
+//		handleCollisions(userProjectiles, enemyUnits);
+//	}
+
+	// NEW CODE
 	private void handleUserProjectileCollisions() {
-		handleCollisions(userProjectiles, enemyUnits);
+		List<ActiveActorDestructible> enemiesToRemove = new ArrayList<>();
+		List<ActiveActorDestructible> projectilesToRemove = new ArrayList<>();
+
+		for (ActiveActorDestructible enemy : enemyUnits) {
+			if (!enemy.isVisibleOnScreen(screenWidth, screenHeight)) {
+				continue; // Skip enemies not visible on the screen
+			}
+			for (ActiveActorDestructible projectile : userProjectiles) {
+				if (enemy.getAdjustedBounds().intersects(projectile.getAdjustedBounds())) {
+					enemy.takeDamage();
+					projectile.takeDamage();
+
+					if (enemy.isDestroyed()) {
+						user.incrementKillCount();
+						System.out.println("Enemy destroyed. Total kills: " + user.getNumberOfKills());
+						enemiesToRemove.add(enemy);
+
+						// Remove bounding box visualization
+						Rectangle highlight = boundingBoxHighlights.remove(enemy);
+						if (highlight != null) {
+							root.getChildren().remove(highlight);
+						}
+					}
+					if (projectile.isDestroyed()) {
+						projectilesToRemove.add(projectile);
+					}
+				}
+			}
+		}
+
+		// Temporarily remove enemies and projectiles from the game
+		root.getChildren().removeAll(enemiesToRemove);
+		root.getChildren().removeAll(projectilesToRemove);
+		enemyUnits.removeAll(enemiesToRemove);
+		userProjectiles.removeAll(projectilesToRemove);
+
+		// Update the kill count display
+		levelView.updateKillCountDisplay(user.getNumberOfKills());
+		System.out.println("Kill count updated in UI: " + user.getNumberOfKills());
 	}
+
+
+
 
 	private void handleEnemyProjectileCollisions() {
 		handleCollisions(enemyProjectiles, friendlyUnits);
@@ -251,15 +298,30 @@ public abstract class LevelParent extends Observable {
 		}
 	}
 
+// OLD CODE
+//	private void handleEnemyPenetration() {
+//		for (ActiveActorDestructible enemy : enemyUnits) {
+//			if (enemyHasPenetratedDefenses(enemy)) {
+//				user.takeDamage();
+//				enemy.destroy();
+//			}
+//		}
+//	}
 
 	private void handleEnemyPenetration() {
+		List<ActiveActorDestructible> penetratedEnemies = new ArrayList<>();
 		for (ActiveActorDestructible enemy : enemyUnits) {
 			if (enemyHasPenetratedDefenses(enemy)) {
-				user.takeDamage();
-				enemy.destroy();
+				// Mark enemy for removal without reducing player health
+				penetratedEnemies.add(enemy);
 			}
 		}
+		// Remove penetrated enemies from the game
+		for (ActiveActorDestructible enemy : penetratedEnemies) {
+			enemy.destroy();
+		}
 	}
+
 
 	protected void updateLevelView() {
 		levelView.removeHearts(user.getHealth());
@@ -276,12 +338,31 @@ public abstract class LevelParent extends Observable {
 		System.out.println("LevelView updated: Boss health and shield status.");
 	}
 
+// OLD CODE
+//	private void updateKillCount() {
+//		for (int i = 0; i < currentNumberOfEnemies - enemyUnits.size(); i++) {
+//			user.incrementKillCount();
+//		}
+//	}
 
 	private void updateKillCount() {
-		for (int i = 0; i < currentNumberOfEnemies - enemyUnits.size(); i++) {
+		List<ActiveActorDestructible> destroyedEnemies = enemyUnits.stream()
+				.filter(enemy -> enemy.isDestroyed() && enemy.isVisibleOnScreen(screenWidth, screenHeight))
+				.collect(Collectors.toList());
+
+		for (ActiveActorDestructible enemy : destroyedEnemies) {
 			user.incrementKillCount();
+			System.out.println("Enemy destroyed. Total kills: " + user.getNumberOfKills());
+			enemyUnits.remove(enemy);
 		}
+
+		// Update the kill count display
+		levelView.updateKillCountDisplay(user.getNumberOfKills());
+		System.out.println("Kill count updated in UI: " + user.getNumberOfKills());
 	}
+
+
+
 
 	private boolean enemyHasPenetratedDefenses(ActiveActorDestructible enemy) {
 		return Math.abs(enemy.getTranslateX()) > screenWidth;

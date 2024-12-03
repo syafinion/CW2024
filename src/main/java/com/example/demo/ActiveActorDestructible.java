@@ -70,6 +70,11 @@ public abstract class ActiveActorDestructible extends ActiveActor implements Des
 		highlight.setHeight(bounds.getHeight());
 	}
 
+	public boolean isVisibleOnScreen(double screenWidth, double screenHeight) {
+		Bounds bounds = getBoundsInParent();
+		return bounds.getMaxX() > 0 && bounds.getMinX() < screenWidth &&
+				bounds.getMaxY() > 0 && bounds.getMinY() < screenHeight;
+	}
 
 
 }

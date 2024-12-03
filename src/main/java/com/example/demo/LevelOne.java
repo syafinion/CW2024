@@ -16,11 +16,18 @@ public class LevelOne extends LevelParent {
 	@Override
 	protected void checkIfGameOver() {
 		if (userIsDestroyed()) {
+			System.out.println("Player is destroyed. Game over.");
 			loseGame();
-		}
-		else if (userHasReachedKillTarget())
+		} else if (userHasReachedKillTarget()) {
+			System.out.println("Kill target reached. Transitioning to next level.");
 			goToNextLevel(NEXT_LEVEL);
+		} else {
+			System.out.println("Player health: " + getUser().getHealth() +
+					", Kills: " + getUser().getNumberOfKills() +
+					", Required kills to advance: " + KILLS_TO_ADVANCE);
+		}
 	}
+
 
 	@Override
 	protected void initializeFriendlyUnits() {
@@ -30,14 +37,18 @@ public class LevelOne extends LevelParent {
 	@Override
 	protected void spawnEnemyUnits() {
 		int currentNumberOfEnemies = getCurrentNumberOfEnemies();
+		System.out.println("Current number of enemies: " + currentNumberOfEnemies);
+
 		for (int i = 0; i < TOTAL_ENEMIES - currentNumberOfEnemies; i++) {
 			if (Math.random() < ENEMY_SPAWN_PROBABILITY) {
 				double newEnemyInitialYPosition = Math.random() * getEnemyMaximumYPosition();
 				ActiveActorDestructible newEnemy = new EnemyPlane(getScreenWidth(), newEnemyInitialYPosition);
 				addEnemyUnit(newEnemy);
+				System.out.println("Spawned enemy at Y: " + newEnemyInitialYPosition);
 			}
 		}
 	}
+
 
 	@Override
 	protected LevelView instantiateLevelView() {
