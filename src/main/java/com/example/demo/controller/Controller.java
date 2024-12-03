@@ -23,11 +23,25 @@ public class Controller implements Observer {
 	}
 
 	public void launchGame() throws ClassNotFoundException, NoSuchMethodException, SecurityException,
-			InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException  {
+			InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
-			stage.show();
-			goToLevel(LEVEL_ONE_CLASS_NAME);
+		stage.setFullScreen(true); // Start in fullscreen windowed mode
+		stage.setFullScreenExitHint(""); // Disable the fullscreen exit hint
+		stage.show();
+		showMainMenu();
 	}
+
+
+	private void showMainMenu() {
+		MainMenu menu = new MainMenu(this);
+		Scene menuScene = menu.createMenuScene();
+		stage.setScene(menuScene);
+	}
+
+	public void startLevel() throws Exception {
+		goToLevel(LEVEL_ONE_CLASS_NAME);
+	}
+
 
 	private void goToLevel(String className) throws ClassNotFoundException, NoSuchMethodException, SecurityException,
 			InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
@@ -35,13 +49,18 @@ public class Controller implements Observer {
 			currentLevel.stop(); // Stop the timeline of the current level
 		}
 		Class<?> myClass = Class.forName(className);
-		Constructor<?> constructor = myClass.getConstructor(double.class, double.class);
+		var constructor = myClass.getConstructor(double.class, double.class);
 		currentLevel = (LevelParent) constructor.newInstance(stage.getHeight(), stage.getWidth());
-		currentLevel.addObserver(this);
+		currentLevel.addObserver((observable, arg) -> {
+			try {
+				goToLevel((String) arg);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
 		Scene scene = currentLevel.initializeScene();
 		stage.setScene(scene);
 		currentLevel.startGame();
-
 	}
 
 	@Override
@@ -54,5 +73,10 @@ public class Controller implements Observer {
 			alert.show();
 		}
 	}
+
+	public Stage getStage() {
+		return stage;
+	}
+
 
 }
