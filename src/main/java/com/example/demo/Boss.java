@@ -26,10 +26,11 @@ public class Boss extends FighterPlane {
 	private int indexOfCurrentMove;
 	private int framesWithShieldActivated;
 	private int shieldCooldownFrames;
-	private LevelTwo levelTwo;
-	public Boss(LevelTwo levelTwo) {
+//	private LevelTwo levelTwo;
+	private LevelParent level;
+	public Boss(LevelParent level){
 		super(IMAGE_NAME, IMAGE_HEIGHT, INITIAL_X_POSITION, INITIAL_Y_POSITION, HEALTH);
-		this.levelTwo = levelTwo;
+		this.level = level;
 		movePattern = new ArrayList<>();
 		consecutiveMovesInSameDirection = 0;
 		indexOfCurrentMove = 0;
@@ -62,12 +63,13 @@ public class Boss extends FighterPlane {
 	}
 
 	private void notifyShieldPosition() {
-		if (levelTwo != null) {
+		if (level instanceof LevelThree) {
 			double bossActualX = getLayoutX() + getTranslateX();
 			double bossActualY = getLayoutY() + getTranslateY();
-			levelTwo.updateBossShieldPosition(bossActualX, bossActualY);
+			((LevelThree) level).updateBossShieldPosition(bossActualX, bossActualY);
 		}
 	}
+
 
 
 

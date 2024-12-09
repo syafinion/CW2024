@@ -3,13 +3,30 @@ package com.example.demo;
 public class LevelTwo extends LevelParent {
 
 	private static final String BACKGROUND_IMAGE_NAME = "/com/example/demo/images/background2.jpg";
-	private static final int PLAYER_INITIAL_HEALTH = 5;
-	private Boss boss;
-	private LevelViewLevelTwo levelView;
+	private static final String NEXT_LEVEL = "com.example.demo.LevelThree";
+
+	private static final int TOTAL_ENEMIES = 8;
+	private static final int KILLS_TO_ADVANCE = 20;
+	private static final double ENEMY_SPAWN_PROBABILITY = 0.30;
+	private static final int PLAYER_INITIAL_HEALTH = 4;
 
 	public LevelTwo(double screenHeight, double screenWidth) {
 		super(BACKGROUND_IMAGE_NAME, screenHeight, screenWidth, PLAYER_INITIAL_HEALTH);
-		boss = new Boss(this);
+	}
+
+	@Override
+	protected void checkIfGameOver() {
+		if (userIsDestroyed()) {
+			System.out.println("Player is destroyed. Game over.");
+			loseGame();
+		} else if (userHasReachedKillTarget()) {
+			System.out.println("Kill target reached for Level Two. Transitioning to next level.");
+			goToNextLevel(NEXT_LEVEL);
+		} else {
+			System.out.println("Player health: " + getUser().getHealth() +
+					", Kills: " + getUser().getNumberOfKills() +
+					", Required kills to advance: " + KILLS_TO_ADVANCE);
+		}
 	}
 
 	@Override
@@ -18,69 +35,26 @@ public class LevelTwo extends LevelParent {
 	}
 
 	@Override
-	protected void checkIfGameOver() {
-		if (userIsDestroyed()) {
-			loseGame();
-		}
-		else if (boss.isDestroyed()) {
-			winGame();
-		}
-	}
-
-	@Override
 	protected void spawnEnemyUnits() {
-		if (getCurrentNumberOfEnemies() == 0) {
-			if (boss == null) {
-				boss = new Boss(this); // Pass the current level instance
-				System.out.println("Boss initialized.");
-			}
-			addEnemyUnit(boss);
-			System.out.println("Boss added to enemy units.");
-		}
-	}
+		int currentNumberOfEnemies = getCurrentNumberOfEnemies();
+		System.out.println("Current number of enemies: " + currentNumberOfEnemies);
 
-
-
-
-	@Override
-	protected void updateLevelView() {
-		super.updateLevelView(); // Update hearts and other UI elements
-
-		if (boss != null) {
-			levelView.updateBossHealthBar(boss.getHealth(), 100);
-
-			// Sync shield position with the boss
-			double bossX = boss.getLayoutX() + boss.getTranslateX();
-			double bossY = boss.getLayoutY() + boss.getTranslateY();
-			levelView.updateShieldPosition(bossX, bossY);
-
-			// Handle shield visibility
-			if (boss.isShielded()) {
-				System.out.println("Shield should be visible.");
-				levelView.showShield();
-			} else {
-				System.out.println("Shield should be hidden.");
-				levelView.hideShield();
+		for (int i = 0; i < TOTAL_ENEMIES - currentNumberOfEnemies; i++) {
+			if (Math.random() < ENEMY_SPAWN_PROBABILITY) {
+				double newEnemyInitialYPosition = Math.random() * getEnemyMaximumYPosition();
+				ActiveActorDestructible newEnemy = new EnemyPlane(getScreenWidth(), newEnemyInitialYPosition);
+				addEnemyUnit(newEnemy);
+				System.out.println("Spawned enemy at Y: " + newEnemyInitialYPosition);
 			}
 		}
 	}
-
-
-
-
-
-	public void updateBossShieldPosition(double bossX, double bossY) {
-		if (levelView instanceof LevelViewLevelTwo) {
-			LevelViewLevelTwo levelTwoView = (LevelViewLevelTwo) levelView;
-			levelTwoView.updateShieldPosition(bossX, bossY);
-		}
-	}
-
 
 	@Override
 	protected LevelView instantiateLevelView() {
-		levelView = new LevelViewLevelTwo(getRoot(), PLAYER_INITIAL_HEALTH);
-		return levelView;
+		return new LevelView(getRoot(), PLAYER_INITIAL_HEALTH);
 	}
 
+	private boolean userHasReachedKillTarget() {
+		return getUser().getNumberOfKills() >= KILLS_TO_ADVANCE;
+	}
 }
