@@ -5,11 +5,14 @@ import java.util.stream.Collectors;
 
 import com.example.demo.controller.PauseMenu;
 import javafx.animation.*;
-import javafx.event.EventHandler;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.image.*;
 import javafx.scene.input.*;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
@@ -528,9 +531,9 @@ public abstract class LevelParent extends Observable {
 	}
 
 	protected void loseGame() {
-		timeline.stop();
-		levelView.showGameOverImage();
+		showGameOverMenu();
 	}
+
 
 	protected UserPlane getUser() {
 		return user;
@@ -577,5 +580,76 @@ public abstract class LevelParent extends Observable {
 	private void updateNumberOfEnemies() {
 		currentNumberOfEnemies = enemyUnits.size();
 	}
+
+	protected void showGameOverMenu() {
+		timeline.stop(); // Stop game logic
+
+		// Create a pane for the game-over menu
+		Pane gameOverPane = new Pane();
+		gameOverPane.setPrefSize(screenWidth, screenHeight);
+
+		// Add a semi-transparent black background
+		Rectangle bg = new Rectangle(screenWidth, screenHeight);
+		bg.setFill(Color.BLACK);
+		bg.setOpacity(0.7);
+		gameOverPane.getChildren().add(bg);
+
+		// Add the Game Over image
+		GameOverImage gameOverImage = new GameOverImage(screenWidth, screenHeight);
+		gameOverPane.getChildren().add(gameOverImage);
+
+		// Retro font for buttons
+		Font retroFont = Font.loadFont(getClass().getResourceAsStream("/com/example/demo/images/PressStart2P-Regular.ttf"), 20);
+
+		// Create Restart and Main Menu buttons
+		VBox menuBox = new VBox(20);
+		menuBox.setAlignment(Pos.CENTER);
+
+		// Restart button
+		StackPane restartButton = createButton("RESTART", retroFont, this::restartLevel);
+		// Main Menu button
+		StackPane mainMenuButton = createButton("MAIN MENU", retroFont, this::goToMainMenu);
+
+		menuBox.getChildren().addAll(restartButton, mainMenuButton);
+		menuBox.setLayoutX((screenWidth - 220) / 2); // Center horizontally
+		menuBox.setLayoutY(screenHeight / 2 + 40); // Position below the game-over image
+
+		gameOverPane.getChildren().add(menuBox);
+
+		// Add game-over menu to the root
+		root.getChildren().add(gameOverPane);
+	}
+
+
+
+	private StackPane createButton(String name, Font font, Runnable action) {
+		StackPane button = new StackPane();
+		button.setPrefSize(220, 40);
+
+		Rectangle bg = new Rectangle(220, 40);
+		bg.setFill(Color.BLACK);
+		bg.setStroke(Color.YELLOW);
+		bg.setStrokeWidth(2);
+
+		Text text = new Text(name);
+		text.setFill(Color.YELLOW);
+		text.setFont(font);
+
+		button.getChildren().addAll(bg, text);
+
+		button.setOnMouseEntered(e -> {
+			bg.setFill(Color.DARKGRAY);
+			text.setFill(Color.WHITE);
+		});
+
+		button.setOnMouseExited(e -> {
+			bg.setFill(Color.BLACK);
+			text.setFill(Color.YELLOW);
+		});
+
+		button.setOnMouseClicked(e -> action.run());
+		return button;
+	}
+
 
 }

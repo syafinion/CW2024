@@ -4,14 +4,17 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 public class GameOverImage extends ImageView {
-	
 	private static final String IMAGE_NAME = "/com/example/demo/images/gameover.png";
 
-	public GameOverImage(double xPosition, double yPosition) {
-		setImage(new Image(getClass().getResource(IMAGE_NAME).toExternalForm()) );
-//		setImage(ImageSetUp.getImageList().get(ImageSetUp.getGameOver()));
-		setLayoutX(xPosition);
-		setLayoutY(yPosition);
-	}
+	public GameOverImage(double screenWidth, double screenHeight) {
+		setImage(new Image(getClass().getResource(IMAGE_NAME).toExternalForm()));
 
+		// Scale the image to make it smaller
+		setFitWidth(400); // Adjust this value as needed
+		setPreserveRatio(true);
+
+		// Center the image horizontally and position it above the menu
+		setLayoutX((screenWidth - getFitWidth()) / 2);
+		setLayoutY(screenHeight / 2 - getFitHeight() - 300); // Adjust vertical position (above the menu)
+	}
 }

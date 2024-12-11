@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -57,13 +58,20 @@ public class PauseMenu {
 
         public Title(String name) {
             Rectangle bg = new Rectangle(customPrefWidth, customPrefHeight);
-            bg.setStroke(Color.WHITE);
-            bg.setStrokeWidth(2);
-            bg.setFill(null);
+            bg.setStroke(Color.YELLOW); // Retro yellow outline
+            bg.setStrokeWidth(4);
+            bg.setFill(Color.BLACK); // Retro-style black background
 
             Text text = new Text(name);
-            text.setFill(Color.WHITE);
-            text.setFont(Font.font("Times New Roman", FontWeight.SEMI_BOLD, 50));
+            text.setFill(Color.YELLOW); // Bright retro color
+            text.setFont(Font.loadFont(getClass().getResourceAsStream("/com/example/demo/images/PressStart2P-Regular.ttf"), 40)); // Retro font
+
+            // Add glow effect
+            DropShadow glow = new DropShadow();
+            glow.setColor(Color.YELLOW);
+            glow.setRadius(15);
+            glow.setSpread(0.7);
+            text.setEffect(glow);
 
             setAlignment(Pos.CENTER);
             getChildren().addAll(bg, text);
@@ -77,6 +85,7 @@ public class PauseMenu {
             return customPrefHeight;
         }
     }
+
 
     private static class MenuBox extends VBox {
         private final double customWidth = 220; // Define a custom width for the menu box
@@ -105,30 +114,33 @@ public class PauseMenu {
 
     private static class MenuItem extends StackPane {
         public MenuItem(String name, Runnable action) {
-            Rectangle bg = new Rectangle(200, 30);
-            bg.setOpacity(0.4);
-            bg.setFill(Color.BLACK);
+            Rectangle bg = new Rectangle(220, 40);
+            bg.setFill(Color.BLACK); // Retro-style black background
+            bg.setStroke(Color.YELLOW); // Yellow outline for retro style
+            bg.setStrokeWidth(2);
 
             Text text = new Text(name);
-            text.setFill(Color.DARKGREY);
-            text.setFont(Font.font("Times New Roman", FontWeight.SEMI_BOLD, 20));
+            text.setFill(Color.YELLOW);
+            text.setFont(Font.loadFont(getClass().getResourceAsStream("/com/example/demo/images/PressStart2P-Regular.ttf"), 20));
 
             setAlignment(Pos.CENTER);
             getChildren().addAll(bg, text);
 
+            // Hover and selection effects
             setOnMouseEntered(event -> {
-                bg.setFill(Color.GRAY);
+                bg.setFill(Color.DARKGRAY);
                 text.setFill(Color.WHITE);
             });
 
             setOnMouseExited(event -> {
                 bg.setFill(Color.BLACK);
-                text.setFill(Color.DARKGREY);
+                text.setFill(Color.YELLOW);
             });
 
             setOnMouseClicked(event -> {
-                action.run(); // Perform the action associated with this item
+                action.run(); // Perform the action
             });
         }
     }
+
 }

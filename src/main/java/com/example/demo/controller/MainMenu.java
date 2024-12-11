@@ -3,8 +3,11 @@ package com.example.demo.controller;
 import com.example.demo.LevelParent;
 import com.example.demo.LevelThree;
 import com.example.demo.LevelView;
+import javafx.animation.Animation;
+import javafx.animation.FadeTransition;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -23,6 +26,7 @@ import javafx.geometry.Pos;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class MainMenu {
     private final Controller controller;
@@ -41,8 +45,30 @@ public class MainMenu {
     }
 
     public Scene createMenuScene() {
+        // Initialize root first to avoid NullPointerException
         root = new Pane();
         root.setPrefSize(1300, 750);
+
+        // Add gradient background
+        Stop[] stops = new Stop[] {
+                new Stop(0, Color.DARKBLUE),
+                new Stop(1, Color.BLACK)
+        };
+        LinearGradient gradient = new LinearGradient(
+                0, 0, 0, 1, true, CycleMethod.NO_CYCLE, stops
+        );
+        Rectangle bg = new Rectangle(root.getPrefWidth(), root.getPrefHeight());
+        bg.setFill(gradient);
+
+        // Add pulsing animation
+        FadeTransition fade = new FadeTransition(Duration.seconds(2), bg);
+        fade.setFromValue(0.8);
+        fade.setToValue(1.0);
+        fade.setAutoReverse(true);
+        fade.setCycleCount(Animation.INDEFINITE);
+        fade.play();
+
+        root.getChildren().add(bg);
 
         // Add Background Image
         try {
@@ -88,6 +114,16 @@ public class MainMenu {
         root.getChildren().addAll(title, vbox, settingsPane);
         return new Scene(root);
     }
+
+
+    public void addGlowEffect(Text text, Color color) {
+        DropShadow glow = new DropShadow();
+        glow.setColor(color);
+        glow.setRadius(10);
+        glow.setSpread(0.4);
+        text.setEffect(glow);
+    }
+
 
 
     private Pane createSettingsPane() {
@@ -312,13 +348,20 @@ public class MainMenu {
 
         public Title(String name) {
             Rectangle bg = new Rectangle(customPrefWidth, customPrefHeight);
-            bg.setStroke(Color.WHITE);
-            bg.setStrokeWidth(2);
-            bg.setFill(null);
+            bg.setStroke(Color.YELLOW); // Retro yellow outline
+            bg.setStrokeWidth(4);
+            bg.setFill(Color.BLACK); // Retro-style black background
 
             Text text = new Text(name);
-            text.setFill(Color.WHITE);
-            text.setFont(Font.font("Times New Roman", FontWeight.SEMI_BOLD, 50));
+            text.setFill(Color.YELLOW); // Bright retro color
+            text.setFont(Font.loadFont(getClass().getResourceAsStream("/com/example/demo/images/PressStart2P-Regular.ttf"), 40)); // Retro font
+
+            // Add glow effect directly in the Title class
+            DropShadow glow = new DropShadow();
+            glow.setColor(Color.YELLOW);
+            glow.setRadius(15);
+            glow.setSpread(0.7);
+            text.setEffect(glow);
 
             setAlignment(Pos.CENTER);
             getChildren().addAll(bg, text);
@@ -332,6 +375,8 @@ public class MainMenu {
             return customPrefHeight;
         }
     }
+
+
 
 
 
@@ -356,24 +401,26 @@ public class MainMenu {
 
 
     private static class MenuItem extends StackPane {
-        private static MenuItem selectedMenuItem = null; // Static variable to track the currently selected item
+        private static MenuItem selectedMenuItem = null; // Track the currently selected item
         private final Rectangle bg; // Background rectangle for easier updates
 
         public MenuItem(String name, Runnable action) {
-            bg = new Rectangle(200, 30);
-            bg.setOpacity(0.4);
-            bg.setFill(Color.BLACK);
+            bg = new Rectangle(220, 40);
+            bg.setFill(Color.BLACK); // Retro-style black background
+            bg.setStroke(Color.YELLOW); // Yellow outline for retro style
+            bg.setStrokeWidth(2);
 
             Text text = new Text(name);
-            text.setFill(Color.DARKGREY);
-            text.setFont(Font.font("Times New Roman", FontWeight.SEMI_BOLD, 20));
+            text.setFill(Color.YELLOW);
+            text.setFont(Font.loadFont(getClass().getResourceAsStream("/com/example/demo/images/PressStart2P-Regular.ttf"), 20));
 
             setAlignment(Pos.CENTER);
             getChildren().addAll(bg, text);
 
+            // Hover and selection effects
             setOnMouseEntered(event -> {
                 if (this != selectedMenuItem) {
-                    bg.setFill(Color.GRAY);
+                    bg.setFill(Color.DARKGRAY);
                     text.setFill(Color.WHITE);
                 }
             });
@@ -381,22 +428,23 @@ public class MainMenu {
             setOnMouseExited(event -> {
                 if (this != selectedMenuItem) {
                     bg.setFill(Color.BLACK);
-                    text.setFill(Color.DARKGREY);
+                    text.setFill(Color.YELLOW);
                 }
             });
 
             setOnMouseClicked(event -> {
                 if (selectedMenuItem != null) {
                     selectedMenuItem.bg.setFill(Color.BLACK); // Reset previous selection
-                    ((Text) selectedMenuItem.getChildren().get(1)).setFill(Color.DARKGREY);
+                    ((Text) selectedMenuItem.getChildren().get(1)).setFill(Color.YELLOW);
                 }
                 selectedMenuItem = this;
                 bg.setFill(Color.DARKBLUE); // Highlight selected item
                 text.setFill(Color.WHITE);
-                action.run(); // Perform the action associated with this item
+                action.run(); // Perform the action
             });
         }
     }
+
 
 
 }
