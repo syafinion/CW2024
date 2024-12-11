@@ -14,10 +14,15 @@ public class UserProjectile extends Projectile {
 	public void updatePosition() {
 		moveHorizontally(HORIZONTAL_VELOCITY);
 	}
-	
+
 	@Override
 	public void updateActor() {
 		updatePosition();
 	}
-	
+
+	@Override
+	public ActiveActorDestructible fireProjectile() {
+		// UserProjectile does not fire further projectiles.
+		throw new UnsupportedOperationException("UserProjectile cannot fire projectiles.");
+	}
 }

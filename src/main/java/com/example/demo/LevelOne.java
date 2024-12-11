@@ -42,12 +42,24 @@ public class LevelOne extends LevelParent {
 		for (int i = 0; i < TOTAL_ENEMIES - currentNumberOfEnemies; i++) {
 			if (Math.random() < ENEMY_SPAWN_PROBABILITY) {
 				double newEnemyInitialYPosition = Math.random() * getEnemyMaximumYPosition();
-				ActiveActorDestructible newEnemy = new EnemyPlane(getScreenWidth(), newEnemyInitialYPosition);
+				EnemyPlane newEnemy = new EnemyPlane(getScreenWidth(), newEnemyInitialYPosition, getUser()); // Pass UserPlane
 				addEnemyUnit(newEnemy);
 				System.out.println("Spawned enemy at Y: " + newEnemyInitialYPosition);
+
+				// Add homing projectile fired by enemy
+				ActiveActorDestructible homingProjectile = newEnemy.fireProjectile();
+				if (homingProjectile != null) {
+					addEnemyProjectile(homingProjectile);
+				}
 			}
 		}
 	}
+
+
+
+
+
+
 
 
 	@Override

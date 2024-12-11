@@ -18,63 +18,76 @@ public class UserPlane extends FighterPlane {
 
 	private final Scene scene;
 
+	private static final int HORIZONTAL_VELOCITY = 8; // New constant for horizontal velocity
+	private int horizontalVelocityMultiplier; // New variable for horizontal movement
+
 	public UserPlane(int initialHealth, Scene scene) {
 		super(IMAGE_NAME, IMAGE_HEIGHT, INITIAL_X_POSITION, INITIAL_Y_POSITION, initialHealth);
-		this.scene = scene; // Save the scene for dynamic height calculation
+		this.scene = scene; // Save the scene for dynamic height and width calculation
 		velocityMultiplier = 0;
+		horizontalVelocityMultiplier = 0; // Initialize horizontal movement
 	}
 
 	@Override
 	public void updatePosition() {
 		if (isMoving()) {
+			double screenWidth = scene.getWidth();
 			double screenHeight = scene.getHeight();
 
 			// Define precise bounds
 			double upperBound = 0; // Top of the screen
 			double lowerBound = screenHeight; // Bottom of the screen
+			double leftBound = 0; // Left of the screen
+			double rightBound = screenWidth; // Right of the screen
 
 			// Move vertically
 			this.moveVertically(VERTICAL_VELOCITY * velocityMultiplier);
 
-			// Calculate the jet's new position
+			// Move horizontally
+			this.moveHorizontally(HORIZONTAL_VELOCITY * horizontalVelocityMultiplier);
+
+			// Restrict movement within vertical bounds
 			double newTranslateY = getTranslateY();
 			double jetTopPosition = getLayoutY() + newTranslateY;
 			double jetBottomPosition = jetTopPosition + getBoundsInParent().getHeight();
 
-			// Restrict movement within bounds
 			if (jetTopPosition < upperBound) {
-				this.setTranslateY(upperBound - getLayoutY()); // Align precisely to the top
+				this.setTranslateY(upperBound - getLayoutY());
 			} else if (jetBottomPosition > lowerBound) {
-				this.setTranslateY(lowerBound - getBoundsInParent().getHeight() - getLayoutY()); // Align precisely to the bottom
+				this.setTranslateY(lowerBound - getBoundsInParent().getHeight() - getLayoutY());
+			}
+
+			// Restrict movement within horizontal bounds
+			double newTranslateX = getTranslateX();
+			double jetLeftPosition = getLayoutX() + newTranslateX;
+			double jetRightPosition = jetLeftPosition + getBoundsInParent().getWidth();
+
+			if (jetLeftPosition < leftBound) {
+				this.setTranslateX(leftBound - getLayoutX());
+			} else if (jetRightPosition > rightBound) {
+				this.setTranslateX(rightBound - getBoundsInParent().getWidth() - getLayoutX());
 			}
 		}
 	}
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 	@Override
 	public void updateActor() {
 		updatePosition();
 	}
-	
+
 	@Override
 	public ActiveActorDestructible fireProjectile() {
-		return new UserProjectile(PROJECTILE_X_POSITION, getProjectileYPosition(PROJECTILE_Y_POSITION_OFFSET));
+		// Calculate the projectile's position relative to the jet's current position
+		double adjustedProjectileX = getLayoutX() + getTranslateX() + PROJECTILE_X_POSITION;
+		double adjustedProjectileY = getLayoutY() + getTranslateY() + PROJECTILE_Y_POSITION_OFFSET;
+		return new UserProjectile(adjustedProjectileX, adjustedProjectileY);
 	}
 
+
+
 	private boolean isMoving() {
-		return velocityMultiplier != 0;
+		return velocityMultiplier != 0 || horizontalVelocityMultiplier != 0;
 	}
 
 	public void moveUp() {
@@ -83,6 +96,19 @@ public class UserPlane extends FighterPlane {
 
 	public void moveDown() {
 		velocityMultiplier = 1;
+	}
+
+	// New methods for horizontal movement
+	public void moveLeft() {
+		horizontalVelocityMultiplier = -1;
+	}
+
+	public void moveRight() {
+		horizontalVelocityMultiplier = 1;
+	}
+
+	public void stopHorizontal() {
+		horizontalVelocityMultiplier = 0;
 	}
 
 	public void stop() {

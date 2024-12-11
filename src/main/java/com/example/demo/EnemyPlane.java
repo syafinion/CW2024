@@ -9,22 +9,34 @@ public class EnemyPlane extends FighterPlane {
 	private static final double PROJECTILE_Y_POSITION_OFFSET = 50.0;
 	private static final int INITIAL_HEALTH = 1;
 	private static final double FIRE_RATE = .01;
+	private final UserPlane userPlane;
 
-	public EnemyPlane(double initialXPos, double initialYPos) {
+	private boolean hasPassedPlayer; // Flag to indicate if the jet has passed the player
+
+	public EnemyPlane(double initialXPos, double initialYPos, UserPlane userPlane) {
 		super(IMAGE_NAME, IMAGE_HEIGHT, initialXPos, initialYPos, INITIAL_HEALTH);
+		this.userPlane = userPlane; // Initialize UserPlane reference
+		this.hasPassedPlayer = false; // Initialize flag
 	}
 
 	@Override
 	public void updatePosition() {
+		// Move the jet horizontally
 		moveHorizontally(HORIZONTAL_VELOCITY);
+
+		// Check if the jet has passed the player
+		if (!hasPassedPlayer && hasPassedPlayerPosition()) {
+			hasPassedPlayer = true; // Set the flag to true
+		}
 	}
 
 	@Override
 	public ActiveActorDestructible fireProjectile() {
-		if (Math.random() < FIRE_RATE) {
+		// Allow shooting only if the jet has not passed the player
+		if (!hasPassedPlayer && Math.random() < FIRE_RATE) {
 			double projectileXPosition = getProjectileXPosition(PROJECTILE_X_POSITION_OFFSET);
-			double projectileYPostion = getProjectileYPosition(PROJECTILE_Y_POSITION_OFFSET);
-			return new EnemyProjectile(projectileXPosition, projectileYPostion);
+			double projectileYPosition = getProjectileYPosition(PROJECTILE_Y_POSITION_OFFSET);
+			return new EnemyProjectile(projectileXPosition, projectileYPosition, userPlane); // Pass UserPlane
 		}
 		return null;
 	}
@@ -34,4 +46,8 @@ public class EnemyPlane extends FighterPlane {
 		updatePosition();
 	}
 
+	private boolean hasPassedPlayerPosition() {
+		// Check if the jet has moved past the player's X position
+		return this.getTranslateX() + this.getLayoutX() < userPlane.getTranslateX() + userPlane.getLayoutX();
+	}
 }

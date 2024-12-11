@@ -125,13 +125,16 @@ public abstract class LevelParent extends Observable {
 			KeyCode kc = e.getCode();
 			if (kc == KeyCode.UP) user.moveUp();
 			if (kc == KeyCode.DOWN) user.moveDown();
+			if (kc == KeyCode.LEFT) user.moveLeft(); // Add left movement
+			if (kc == KeyCode.RIGHT) user.moveRight(); // Add right movement
 			if (kc == KeyCode.SPACE) fireProjectile();
-			if (kc == KeyCode.ESCAPE) togglePause(); // Toggle pause on Escape key
+			if (kc == KeyCode.ESCAPE) togglePause();
 		});
 
 		background.setOnKeyReleased(e -> {
 			KeyCode kc = e.getCode();
 			if (kc == KeyCode.UP || kc == KeyCode.DOWN) user.stop();
+			if (kc == KeyCode.LEFT || kc == KeyCode.RIGHT) user.stopHorizontal(); // Stop horizontal movement
 		});
 
 		root.getChildren().add(background);
@@ -470,6 +473,13 @@ public abstract class LevelParent extends Observable {
 	protected boolean userIsDestroyed() {
 		return user.isDestroyed();
 	}
+	protected void addEnemyProjectile(ActiveActorDestructible projectile) {
+		enemyProjectiles.add(projectile);
+		root.getChildren().add(projectile);
+	}
+
+
+
 
 	private void updateNumberOfEnemies() {
 		currentNumberOfEnemies = enemyUnits.size();
