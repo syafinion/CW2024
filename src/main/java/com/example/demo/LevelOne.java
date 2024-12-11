@@ -56,7 +56,8 @@ public class LevelOne extends LevelParent {
 						});
 
 				if (positionValid) {
-					EnemyPlane newEnemy = new EnemyPlane(newEnemyInitialXPosition, newEnemyInitialYPosition, getUser());
+					// Pass the root group to the EnemyPlane constructor
+					EnemyPlane newEnemy = new EnemyPlane(newEnemyInitialXPosition, newEnemyInitialYPosition, getUser(), getRoot());
 					addEnemyUnit(newEnemy);
 					System.out.println("Spawned enemy at X: " + newEnemyInitialXPosition + ", Y: " + newEnemyInitialYPosition);
 
@@ -71,6 +72,7 @@ public class LevelOne extends LevelParent {
 			}
 		}
 	}
+
 
 
 
