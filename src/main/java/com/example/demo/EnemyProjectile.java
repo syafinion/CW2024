@@ -31,7 +31,7 @@ public class EnemyProjectile extends Projectile {
 			double deltaY = userPlane.getTranslateY() + userPlane.getLayoutY() - (this.getTranslateY() + this.getLayoutY());
 			double distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
-			if (distance <= HOMING_DISTANCE) {
+			if (distance <= HOMING_DISTANCE && distance > IMAGE_HEIGHT / 2) { // Add a minimum distance check
 				// Normalize the direction vector and scale it by the projectile speed
 				double normalizedX = (deltaX / distance) * SPEED;
 				double normalizedY = (deltaY / distance) * SPEED;
@@ -39,7 +39,7 @@ public class EnemyProjectile extends Projectile {
 				this.setTranslateX(this.getTranslateX() + normalizedX);
 				this.setTranslateY(this.getTranslateY() + normalizedY);
 			} else {
-				// Set angle and stop homing if the target is out of range
+				// Set angle and stop homing if the target is out of range or too close
 				calculateAngleForStraightLine(deltaX, deltaY);
 				isHoming = false;
 			}
@@ -55,6 +55,7 @@ public class EnemyProjectile extends Projectile {
 		}
 	}
 
+
 	@Override
 	public void updateActor() {
 		updatePosition();
@@ -62,9 +63,15 @@ public class EnemyProjectile extends Projectile {
 
 	@Override
 	public ActiveActorDestructible fireProjectile() {
-		// EnemyProjectile does not fire further projectiles.
-		throw new UnsupportedOperationException("EnemyProjectile cannot fire projectiles.");
+		// Prevent shooting if the user plane has passed the enemy plane
+		if (userPlane.getTranslateY() + userPlane.getLayoutY() < this.getTranslateY() + this.getLayoutY()) {
+			throw new UnsupportedOperationException("EnemyProjectile cannot fire projectiles because the user plane has passed.");
+		}
+
+		// Code for firing projectiles (if allowed in other cases)
+		return new EnemyProjectile(this.getTranslateX(), this.getTranslateY(), userPlane);
 	}
+
 
 	private void calculateAngleForStraightLine(double deltaX, double deltaY) {
 		this.angle = Math.atan2(deltaY, deltaX); // Calculate angle for straight-line movement

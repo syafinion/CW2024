@@ -12,6 +12,7 @@ public class EnemyPlane extends FighterPlane {
 	private final UserPlane userPlane;
 
 	private boolean hasPassedPlayer; // Flag to indicate if the jet has passed the player
+	private static final double VERTICAL_SAFETY_DISTANCE = 100.0; // Distance to prevent shooting when user is underneath
 
 	public EnemyPlane(double initialXPos, double initialYPos, UserPlane userPlane) {
 		super(IMAGE_NAME, IMAGE_HEIGHT, initialXPos, initialYPos, INITIAL_HEALTH);
@@ -33,7 +34,7 @@ public class EnemyPlane extends FighterPlane {
 	@Override
 	public ActiveActorDestructible fireProjectile() {
 		// Allow shooting only if the jet has not passed the player
-		if (!hasPassedPlayer && Math.random() < FIRE_RATE) {
+		if (!hasPassedPlayer && !isUserPlaneUnderneath() && Math.random() < FIRE_RATE) {
 			double projectileXPosition = getProjectileXPosition(PROJECTILE_X_POSITION_OFFSET);
 			double projectileYPosition = getProjectileYPosition(PROJECTILE_Y_POSITION_OFFSET);
 			return new EnemyProjectile(projectileXPosition, projectileYPosition, userPlane); // Pass UserPlane
@@ -49,5 +50,12 @@ public class EnemyPlane extends FighterPlane {
 	private boolean hasPassedPlayerPosition() {
 		// Check if the jet has moved past the player's X position
 		return this.getTranslateX() + this.getLayoutX() < userPlane.getTranslateX() + userPlane.getLayoutX();
+	}
+
+	private boolean isUserPlaneUnderneath() {
+		// Check if the user plane is vertically too close underneath the enemy plane
+		double enemyPlaneY = this.getTranslateY() + this.getLayoutY();
+		double userPlaneY = userPlane.getTranslateY() + userPlane.getLayoutY();
+		return Math.abs(enemyPlaneY - userPlaneY) < VERTICAL_SAFETY_DISTANCE;
 	}
 }

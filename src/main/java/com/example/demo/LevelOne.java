@@ -41,19 +41,38 @@ public class LevelOne extends LevelParent {
 
 		for (int i = 0; i < TOTAL_ENEMIES - currentNumberOfEnemies; i++) {
 			if (Math.random() < ENEMY_SPAWN_PROBABILITY) {
+				double newEnemyInitialXPosition = getScreenWidth(); // Spawning on the right edge
 				double newEnemyInitialYPosition = Math.random() * getEnemyMaximumYPosition();
-				EnemyPlane newEnemy = new EnemyPlane(getScreenWidth(), newEnemyInitialYPosition, getUser()); // Pass UserPlane
-				addEnemyUnit(newEnemy);
-				System.out.println("Spawned enemy at Y: " + newEnemyInitialYPosition);
 
-				// Add homing projectile fired by enemy
-				ActiveActorDestructible homingProjectile = newEnemy.fireProjectile();
-				if (homingProjectile != null) {
-					addEnemyProjectile(homingProjectile);
+				// Ensure no overlap with existing enemies
+				boolean positionValid = enemyUnits.stream()
+						.noneMatch(enemy -> {
+							double existingX = enemy.getTranslateX();
+							double existingY = enemy.getTranslateY();
+							double distanceX = Math.abs(existingX - newEnemyInitialXPosition);
+							double distanceY = Math.abs(existingY - newEnemyInitialYPosition);
+
+							return distanceX < 100 && distanceY < 50; // Ensure minimum distance of 100 horizontally and 50 vertically
+						});
+
+				if (positionValid) {
+					EnemyPlane newEnemy = new EnemyPlane(newEnemyInitialXPosition, newEnemyInitialYPosition, getUser());
+					addEnemyUnit(newEnemy);
+					System.out.println("Spawned enemy at X: " + newEnemyInitialXPosition + ", Y: " + newEnemyInitialYPosition);
+
+					// Optionally add a projectile for the enemy
+					ActiveActorDestructible homingProjectile = newEnemy.fireProjectile();
+					if (homingProjectile != null) {
+						addEnemyProjectile(homingProjectile);
+					}
+				} else {
+					i--; // Retry this spawn if position is invalid
 				}
 			}
 		}
 	}
+
+
 
 
 
