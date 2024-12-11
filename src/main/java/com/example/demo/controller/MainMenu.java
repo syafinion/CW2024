@@ -70,7 +70,10 @@ public class MainMenu {
                     }
                 }),
                 new MenuItem("SETTINGS", () -> toggleSettings(root)),
-                new MenuItem("EXIT", () -> System.exit(0))
+                new MenuItem("EXIT", () -> {
+                    controller.stopMusic();
+                    System.exit(0);
+                })
         );
         vbox.layoutXProperty().bind(root.widthProperty().subtract(vbox.widthProperty()).divide(2));
         vbox.layoutYProperty().bind(root.heightProperty().divide(2.5));

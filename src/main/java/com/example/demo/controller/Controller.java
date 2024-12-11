@@ -10,21 +10,25 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.Pane;
-import javafx.stage.Stage;
 import com.example.demo.LevelParent;
 import javafx.animation.AnimationTimer;
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.stage.Stage;
 
+import java.io.File;
 public class Controller implements Observer {
 
 	private static final String LEVEL_ONE_CLASS_NAME = "com.example.demo.LevelOne";
 	private final Stage stage;
-
+	private MediaPlayer mediaPlayer;
 	private LevelParent currentLevel;
 
 	public Controller(Stage stage) {
 		this.stage = stage;
+		playBackgroundMusic();
 	}
 
 	public void launchGame() throws ClassNotFoundException, NoSuchMethodException, SecurityException,
@@ -50,6 +54,47 @@ public class Controller implements Observer {
 		// Show the main menu
 		showMainMenu();
 	}
+
+	private void playBackgroundMusic() {
+		// Path to the first and second music files
+		String firstMusicPath = new File("src/main/resources/com/example/demo/images/boom-8-bit-36004.mp3").toURI().toString();
+		String loopMusicPath = new File("src/main/resources/com/example/demo/images/8-bit-loop-189494.mp3").toURI().toString();
+
+		// Create the first MediaPlayer
+		Media firstMedia = new Media(firstMusicPath);
+		MediaPlayer firstMediaPlayer = new MediaPlayer(firstMedia);
+
+		// Create the loop MediaPlayer
+		Media loopMedia = new Media(loopMusicPath);
+		MediaPlayer loopMediaPlayer = new MediaPlayer(loopMedia);
+
+		// Set the loop MediaPlayer to repeat
+		loopMediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+
+		// Play the loop track after the first track finishes
+		firstMediaPlayer.setOnEndOfMedia(() -> {
+			firstMediaPlayer.dispose(); // Clean up resources
+			loopMediaPlayer.play();    // Start the loop track
+			mediaPlayer = loopMediaPlayer;
+		});
+
+		// Start playing the first track
+		mediaPlayer = firstMediaPlayer;
+		mediaPlayer.play();
+	}
+
+	public void stopMusic() {
+		if (mediaPlayer != null) {
+			mediaPlayer.stop();
+			mediaPlayer.dispose();
+		}
+	}
+
+	public void exitGame() {
+		stopMusic();
+		System.exit(0);
+	}
+
 	public LevelView getCurrentLevelView() {
 		if (currentLevel != null) {
 			return currentLevel.getLevelView();
