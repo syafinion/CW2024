@@ -76,9 +76,16 @@ public class Boss extends FighterPlane {
 
 	@Override
 	public ActiveActorDestructible fireProjectile() {
-		return bossFiresInCurrentFrame() ? new BossProjectile(getProjectileInitialPosition()) : null;
+		if (bossFiresInCurrentFrame()) {
+			// Calculate the fireball's position relative to the boss's current position
+			double adjustedProjectileX = getLayoutX() + getTranslateX() - 50; // In front of the boss
+			double adjustedProjectileY = getLayoutY() + getTranslateY() + PROJECTILE_Y_POSITION_OFFSET;
+			return new BossProjectile(adjustedProjectileX, adjustedProjectileY);
+		}
+		return null;
 	}
-	
+
+
 	@Override
 	public void takeDamage() {
 		if (!isShielded) {

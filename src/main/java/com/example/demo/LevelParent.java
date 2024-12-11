@@ -312,12 +312,6 @@ public abstract class LevelParent extends Observable {
 		}
 	}
 
-//	private void updateActors() {
-//		friendlyUnits.forEach(plane -> plane.updateActor());
-//		enemyUnits.forEach(enemy -> enemy.updateActor());
-//		userProjectiles.forEach(projectile -> projectile.updateActor());
-//		enemyProjectiles.forEach(projectile -> projectile.updateActor());
-//	}
 
 	private final Map<ActiveActorDestructible, Rectangle> boundingBoxHighlights = new HashMap<>();
 
@@ -504,13 +498,6 @@ public abstract class LevelParent extends Observable {
 		}
 		System.out.println("LevelView updated: Boss health and shield status.");
 	}
-
-// OLD CODE
-//	private void updateKillCount() {
-//		for (int i = 0; i < currentNumberOfEnemies - enemyUnits.size(); i++) {
-//			user.incrementKillCount();
-//		}
-//	}
 
 	private void updateKillCount() {
 		List<ActiveActorDestructible> destroyedEnemies = enemyUnits.stream()

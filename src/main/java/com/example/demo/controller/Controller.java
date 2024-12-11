@@ -26,10 +26,23 @@ public class Controller implements Observer {
 	private MediaPlayer mediaPlayer;
 	private LevelParent currentLevel;
 
+	private double currentVolume = 0.5; // Default to 50%
+
+
 	public Controller(Stage stage) {
 		this.stage = stage;
 		playBackgroundMusic();
 	}
+
+	public void setVolume(double volume) {
+		currentVolume = volume; // Update global volume setting
+		if (mediaPlayer != null) {
+			mediaPlayer.setVolume(volume);
+		}
+		System.out.println("Volume set to: " + (int) (volume * 100) + "%");
+	}
+
+
 
 	public void launchGame() throws ClassNotFoundException, NoSuchMethodException, SecurityException,
 			InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
@@ -56,32 +69,30 @@ public class Controller implements Observer {
 	}
 
 	private void playBackgroundMusic() {
-		// Path to the first and second music files
 		String firstMusicPath = new File("src/main/resources/com/example/demo/images/boom-8-bit-36004.mp3").toURI().toString();
 		String loopMusicPath = new File("src/main/resources/com/example/demo/images/8-bit-loop-189494.mp3").toURI().toString();
 
-		// Create the first MediaPlayer
 		Media firstMedia = new Media(firstMusicPath);
 		MediaPlayer firstMediaPlayer = new MediaPlayer(firstMedia);
 
-		// Create the loop MediaPlayer
 		Media loopMedia = new Media(loopMusicPath);
 		MediaPlayer loopMediaPlayer = new MediaPlayer(loopMedia);
 
-		// Set the loop MediaPlayer to repeat
 		loopMediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
 
-		// Play the loop track after the first track finishes
 		firstMediaPlayer.setOnEndOfMedia(() -> {
-			firstMediaPlayer.dispose(); // Clean up resources
-			loopMediaPlayer.play();    // Start the loop track
+			firstMediaPlayer.dispose();
+			loopMediaPlayer.setVolume(currentVolume); // Apply global volume
+			loopMediaPlayer.play();
 			mediaPlayer = loopMediaPlayer;
 		});
 
-		// Start playing the first track
 		mediaPlayer = firstMediaPlayer;
+		mediaPlayer.setVolume(currentVolume); // Apply global volume
 		mediaPlayer.play();
 	}
+
+
 
 	public void stopMusic() {
 		if (mediaPlayer != null) {
@@ -121,11 +132,11 @@ public class Controller implements Observer {
 	private void goToLevel(String className) throws ClassNotFoundException, NoSuchMethodException, SecurityException,
 			InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		if (className.equals("MAIN_MENU")) {
-			showMainMenu(); // Call the method to show the main menu directly
+			showMainMenu();
 			return;
 		}
 		if (currentLevel != null) {
-			currentLevel.stop(); // Stop the timeline of the current level
+			currentLevel.stop();
 		}
 		Class<?> myClass = Class.forName(className);
 		var constructor = myClass.getConstructor(double.class, double.class);
@@ -137,10 +148,17 @@ public class Controller implements Observer {
 				e.printStackTrace();
 			}
 		});
+
+		// Apply current volume to the media player when entering a new level
+		if (mediaPlayer != null) {
+			mediaPlayer.setVolume(currentVolume);
+		}
+
 		Scene scene = currentLevel.initializeScene();
 		stage.setScene(scene);
 		currentLevel.startGame();
 	}
+
 
 	@Override
 	public void update(Observable arg0, Object arg1) {

@@ -2,7 +2,7 @@ package com.example.demo;
 
 public class LevelOne extends LevelParent {
 	
-	private static final String BACKGROUND_IMAGE_NAME = "/com/example/demo/images/background1.jpg";
+	private static final String BACKGROUND_IMAGE_NAME = "/com/example/demo/images/levelonebg.gif";
 	private static final String NEXT_LEVEL = "com.example.demo.LevelTwo";
 	private static final int TOTAL_ENEMIES = 5;
 	private static final int KILLS_TO_ADVANCE = 10;
@@ -85,8 +85,9 @@ public class LevelOne extends LevelParent {
 
 	@Override
 	protected LevelView instantiateLevelView() {
-		return new LevelView(getRoot(), PLAYER_INITIAL_HEALTH);
+		return new LevelView(getRoot(), PLAYER_INITIAL_HEALTH, false); // Pass false for isLevelThree
 	}
+
 
 	private boolean userHasReachedKillTarget() {
 		return getUser().getNumberOfKills() >= KILLS_TO_ADVANCE;

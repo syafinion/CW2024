@@ -19,7 +19,7 @@ public class LevelViewLevelTwo extends LevelView {
 	private final Rectangle healthBarBorder;
 
 	public LevelViewLevelTwo(Group root, int heartsToDisplay) {
-		super(root, heartsToDisplay);
+		super(root, heartsToDisplay, true);
 		this.root = root;
 
 		// Initialize shield
@@ -108,35 +108,21 @@ public class LevelViewLevelTwo extends LevelView {
 		shieldImage.hideShield();
 	}
 
-
-
-	// new working code
-//	public void updateShieldPosition(double bossX, double bossY) {
-//		if (shieldImage != null) {
-//			// Adjust X and Y to position the shield slightly in front of the boss plane
-//			double shieldFrontX = bossX + 1; // Move shield slightly in front (increase X)
-//			double shieldFrontY = bossY - (SHIELD_SIZE / 4); // Adjust vertically for better alignment
-//
-//			shieldImage.setLayoutX(shieldFrontX);
-//			shieldImage.setLayoutY(shieldFrontY);
-//
-//			System.out.println("Shield repositioned to: (" + shieldFrontX + ", " + shieldFrontY + ")");
-//		}
-//	}
-
 	@Override
 	public void updateShieldPosition(double bossX, double bossY) {
 		if (shieldImage != null) {
-			// Center the shield on the boss
-			double shieldX = bossX - (SHIELD_SIZE / 2);
-			double shieldY = bossY - (SHIELD_SIZE / 2);
+			// Position the shield relative to the boss plane's current location
+			double shieldX = bossX + 1; // Slightly in front of the boss plane
+			double shieldY = bossY - (SHIELD_SIZE / 4); // Adjust vertically for better alignment
 
+			// Apply the calculated position to the shield image
 			shieldImage.setLayoutX(shieldX);
 			shieldImage.setLayoutY(shieldY);
 
 			System.out.println("Shield repositioned to: (" + shieldX + ", " + shieldY + ")");
 		}
 	}
-	
+
+
 
 }

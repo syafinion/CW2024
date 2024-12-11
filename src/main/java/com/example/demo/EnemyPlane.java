@@ -20,7 +20,7 @@ public class EnemyPlane extends FighterPlane {
 	private static final int INITIAL_HEALTH = 1;
 	private static final double FIRE_RATE = .01;
 	private final UserPlane userPlane;
-	private static final String DAMAGE_GIF = "/com/example/demo/images/damage.gif";
+	private static final String DAMAGE_IMAGE = "/com/example/demo/images/explode.png";
 	private final Group root;
 	private boolean hasPassedPlayer; // Flag to indicate if the jet has passed the player
 	private static final double VERTICAL_SAFETY_DISTANCE = 100.0; // Distance to prevent shooting when user is underneath
@@ -61,24 +61,27 @@ public class EnemyPlane extends FighterPlane {
 	}
 
 	private void showDamageEffect() {
-		// Load the damage GIF
-		ImageView damageEffect = new ImageView(new Image(getClass().getResource(DAMAGE_GIF).toExternalForm()));
+		// Create an ImageView for the damage image
+		ImageView damageEffect = new ImageView(new Image(getClass().getResource(DAMAGE_IMAGE).toExternalForm()));
+
 		// Set the position and size to align with the EnemyPlane
 		damageEffect.setFitWidth(getBoundsInParent().getWidth());
 		damageEffect.setFitHeight(getBoundsInParent().getHeight());
 		damageEffect.setLayoutX(getBoundsInParent().getMinX());
 		damageEffect.setLayoutY(getBoundsInParent().getMinY());
 
-		// Add the damage GIF to the scene
+		// Add the damage effect to the scene
 		root.getChildren().add(damageEffect);
 
-		// Pause before removing the GIF
-		PauseTransition pause = new PauseTransition(Duration.seconds(0.5)); // Display the GIF for 0.5 seconds
+		// Pause before removing the damage effect
+		PauseTransition pause = new PauseTransition(Duration.seconds(0.5)); // Display for 0.5 seconds
 		pause.setOnFinished(e -> root.getChildren().remove(damageEffect));
 
 		// Play the effect
 		pause.play();
 	}
+
+
 
 	@Override
 	public void updateActor() {
@@ -89,7 +92,6 @@ public class EnemyPlane extends FighterPlane {
 		// Check if the jet has moved past the player's X position
 		return this.getTranslateX() + this.getLayoutX() < userPlane.getTranslateX() + userPlane.getLayoutX();
 	}
-
 
 
 	private boolean isUserPlaneUnderneath() {

@@ -1,8 +1,15 @@
 package com.example.demo;
 
+import javafx.animation.FadeTransition;
+import javafx.scene.Scene;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.util.Duration;
+
 public class LevelThree extends LevelParent {
 
-    private static final String BACKGROUND_IMAGE_NAME = "/com/example/demo/images/background2.jpg";
+    private static final String BACKGROUND_IMAGE_NAME = "/com/example/demo/images/levelthreebg.gif";
     private static final int PLAYER_INITIAL_HEALTH = 5;
     private Boss boss;
     private LevelViewLevelTwo levelView;
@@ -13,6 +20,34 @@ public class LevelThree extends LevelParent {
     }
 
     @Override
+    public Scene initializeScene() {
+        Scene scene = super.initializeScene(); // Call the base logic to set up the scene
+
+        // Create objective text
+        Text objectiveText = new Text("Objective: Defeat the Boss");
+        objectiveText.setFont(Font.font("Press Start 2P", 20)); // Use the retro font
+        objectiveText.setFill(Color.YELLOW);
+
+        // Position the text below the health bar
+        double objectiveTextX = getScreenWidth() / 2 - objectiveText.getLayoutBounds().getWidth() / 2;
+        double objectiveTextY = getScreenHeight() * 0.12; // 12% from the top of the screen
+        objectiveText.setLayoutX(objectiveTextX);
+        objectiveText.setLayoutY(objectiveTextY);
+
+        // Add the text to the root
+        getRoot().getChildren().add(objectiveText);
+
+        // Fade-in animation for the text
+        FadeTransition fadeIn = new FadeTransition(Duration.seconds(2), objectiveText);
+        fadeIn.setFromValue(0);
+        fadeIn.setToValue(1);
+        fadeIn.play();
+
+        return scene;
+    }
+
+
+    @Override
     protected void initializeFriendlyUnits() {
         getRoot().getChildren().add(getUser());
     }
@@ -21,11 +56,13 @@ public class LevelThree extends LevelParent {
     protected void checkIfGameOver() {
         if (userIsDestroyed()) {
             loseGame();
-        }
-        else if (boss.isDestroyed()) {
+        } else if (boss.isDestroyed()) {
+            // Remove the objective text
+            getRoot().getChildren().removeIf(node -> node instanceof Text && ((Text) node).getText().contains("Objective"));
             winGame();
         }
     }
+
 
     @Override
     protected void spawnEnemyUnits() {
@@ -38,6 +75,8 @@ public class LevelThree extends LevelParent {
             System.out.println("Boss added to enemy units.");
         }
     }
+
+
 
 
 
@@ -78,14 +117,6 @@ public class LevelThree extends LevelParent {
     }
 
 
-
-
-//    public void updateBossShieldPosition(double bossX, double bossY) {
-//        if (levelView instanceof LevelViewLevelTwo ) {
-//            LevelViewLevelTwo levelTwoView = (LevelViewLevelTwo) levelView;
-//            levelTwoView.updateShieldPosition(bossX, bossY);
-//        }
-//    }
 
 public void updateBossShieldPosition(double bossX, double bossY) {
     levelView.updateShieldPosition(bossX, bossY);

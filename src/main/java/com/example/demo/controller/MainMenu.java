@@ -7,6 +7,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -25,7 +26,7 @@ import javafx.stage.Stage;
 
 public class MainMenu {
     private final Controller controller;
-    private static final String IMAGE_NAME = "/com/example/demo/images/battlejet.gif";
+    private static final String IMAGE_NAME = "/com/example/demo/images/mainmenubg.gif";
 
     private Pane root;
     private MenuBox vbox;
@@ -91,24 +92,24 @@ public class MainMenu {
 
     private Pane createSettingsPane() {
         Pane settingsPane = new Pane();
-        settingsPane.setPrefSize(700, 400); // Increased size of the settings pane
+        settingsPane.setPrefSize(700, 500); // Increased height to accommodate buttons
 
-        // Background for settings pane
-        Rectangle bg = new Rectangle(700, 400); // Match the size of the pane
+        // Background rectangle
+        Rectangle bg = new Rectangle(700, 500); // Match the updated size
         bg.setFill(Color.BLACK);
         bg.setOpacity(0.8);
 
-        // Title for settings
+        // Settings title
         Text settingsTitle = new Text("SETTINGS");
         settingsTitle.setFill(Color.WHITE);
-        settingsTitle.setFont(Font.font("Times New Roman", FontWeight.SEMI_BOLD, 40)); // Larger font size
+        settingsTitle.setFont(Font.font("Times New Roman", FontWeight.SEMI_BOLD, 40));
 
-        // Center layout container for options
-        VBox centerLayout = new VBox(20); // 20 px spacing between elements
-        centerLayout.setAlignment(Pos.CENTER);
-        centerLayout.setPrefSize(700, 300);
+        // Center layout
+        VBox centerLayout = new VBox(30); // Increased spacing between elements
+        centerLayout.setAlignment(Pos.TOP_CENTER);
+        centerLayout.setPrefSize(700, 450);
 
-        // Resolution options
+        // Resolution menu
         MenuBox resolutionMenu = new MenuBox(
                 new MenuItem("1280 x 720 (Windowed)", () -> setPendingResolution(1280, 720, false)),
                 new MenuItem("1600 x 900 (Windowed)", () -> setPendingResolution(1600, 900, false)),
@@ -118,34 +119,55 @@ public class MainMenu {
                         setPendingResolution(1920, 1080, false);
                     } else {
                         System.out.println("1920 x 1080 is not supported on this screen.");
-                        setPendingResolution((int) screenBounds.getWidth(), (int) screenBounds.getHeight(), false); // Fallback to max available
+                        setPendingResolution((int) screenBounds.getWidth(), (int) screenBounds.getHeight(), false);
                     }
                 }),
                 new MenuItem("Default (1300 x 750)", () -> setPendingResolution(1300, 750, false)),
                 new MenuItem("Toggle Fullscreen", this::togglePendingFullscreen)
         );
 
+        // Volume slider with label
+        Text volumeLabel = new Text("Volume: 50%");
+        volumeLabel.setFill(Color.WHITE);
+        volumeLabel.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+
+        javafx.scene.control.Slider volumeSlider = new javafx.scene.control.Slider(0, 1, 0.5);
+        volumeSlider.setPrefWidth(200);
+        volumeSlider.setValue(0.5);
+        volumeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            double percentage = newValue.doubleValue() * 100;
+            volumeLabel.setText(String.format("Volume: %.0f%%", percentage));
+            controller.setVolume(newValue.doubleValue()); // Update global volume
+        });
+
+
+        VBox volumeControl = new VBox(10, volumeLabel, volumeSlider);
+        volumeControl.setAlignment(Pos.CENTER);
+
         // Apply and Cancel buttons
         StackPane applyButton = createButton("Apply", () -> applyResolution(settingsPane));
         StackPane cancelButton = createButton("Cancel", () -> closeSettings(settingsPane));
 
-        // Horizontal layout for buttons
-        VBox buttonsLayout = new VBox(10); // 10 px spacing between buttons
+        HBox buttonsLayout = new HBox(20); // Horizontal layout for buttons
         buttonsLayout.setAlignment(Pos.CENTER);
         buttonsLayout.getChildren().addAll(applyButton, cancelButton);
 
-        // Add all elements to the center layout
-        centerLayout.getChildren().addAll(resolutionMenu, buttonsLayout);
+        // Adding all elements to center layout
+        centerLayout.getChildren().addAll(resolutionMenu, volumeControl, buttonsLayout);
 
         // Position title and center layout
-        settingsTitle.setLayoutX(700 / 2.0 - settingsTitle.getLayoutBounds().getWidth() / 2); // Center horizontally
-        settingsTitle.setLayoutY(50); // Position title near the top
-        centerLayout.setLayoutY(100); // Adjust vertical position
+        settingsTitle.setLayoutX(settingsPane.getPrefWidth() / 2 - settingsTitle.getLayoutBounds().getWidth() / 2);
+        settingsTitle.setLayoutY(50);
+        centerLayout.setLayoutY(100);
 
+        // Add components to the settings pane
         settingsPane.getChildren().addAll(bg, settingsTitle, centerLayout);
-        settingsPane.setVisible(false); // Initially hidden
+        settingsPane.setVisible(false);
         return settingsPane;
     }
+
+
+
 
 
 
