@@ -12,6 +12,8 @@ import javafx.scene.image.*;
 import javafx.scene.input.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 public abstract class LevelParent extends Observable {
@@ -39,6 +41,8 @@ public abstract class LevelParent extends Observable {
 
 	private boolean isPaused = false;
 	private PauseMenu pauseMenu;
+
+	private boolean transitioningToNextLevel = false;
 
 	public LevelParent(String backgroundImageName, double screenHeight, double screenWidth, int playerInitialHealth) {
 		this.root = new Group();
@@ -72,19 +76,62 @@ public abstract class LevelParent extends Observable {
 		initializeBackground();
 		initializeFriendlyUnits();
 		levelView.showHeartDisplay();
+
+		// Load a retro font
+		Font retroFont = Font.loadFont(getClass().getResourceAsStream("/com/example/demo/images/PressStart2P-Regular.ttf"), 20);
+
+		// Dynamically detect the current level number from the class name
+		String levelNumber = getClass().getSimpleName().replace("Level", "");
+
+		// Level text display
+		Text levelText = new Text("Level " + levelNumber);
+		levelText.setFont(retroFont); // Apply retro font
+		levelText.setFill(Color.WHITE);
+
+		// Calculate text width and center it
+		double textWidth = levelText.getLayoutBounds().getWidth();
+		levelText.setLayoutX((getScreenWidth() - textWidth) / 2);
+		levelText.setLayoutY(getScreenHeight() / 2);
+
+		root.getChildren().add(levelText);
+
+		// Fade-out effect after 2 seconds
+		Timeline hideLevelText = new Timeline(new KeyFrame(Duration.seconds(2), e -> root.getChildren().remove(levelText)));
+		hideLevelText.play();
+
+		// Fade-in effect for level start
+		FadeTransition fadeIn = new FadeTransition(Duration.seconds(1), root);
+		fadeIn.setFromValue(0.0);
+		fadeIn.setToValue(1.0);
+		fadeIn.play();
+
 		return scene;
 	}
 
+
+
+
+
 	public void startGame() {
 		background.requestFocus();
-		timeline.play();
+		startCountdown(() -> timeline.play());
 	}
 
 	public void goToNextLevel(String levelName) {
+		transitioningToNextLevel = true; // Start transition
 		timeline.stop();
-		setChanged();
-		notifyObservers(levelName);
+		FadeTransition fadeOut = new FadeTransition(Duration.seconds(1), root);
+		fadeOut.setFromValue(1.0);
+		fadeOut.setToValue(0.0);
+		fadeOut.setOnFinished(e -> {
+			setChanged();
+			notifyObservers(levelName);
+			transitioningToNextLevel = false; // End transition
+		});
+		fadeOut.play();
 	}
+
+
 
 	public void stop() {
 		timeline.stop();
@@ -164,6 +211,59 @@ public abstract class LevelParent extends Observable {
 
 		root.getChildren().add(pauseMenu.getRoot());
 	}
+
+	private void startCountdown(Runnable onComplete) {
+		// Load the retro font
+		Font retroFont = Font.loadFont(getClass().getResourceAsStream("/com/example/demo/images/PressStart2P-Regular.ttf"), 50);
+
+		// Dynamically detect the current level number from the class name
+		String levelNumber = getClass().getSimpleName().replace("Level", "");
+
+		Text countdownText = new Text();
+		countdownText.setFont(retroFont); // Apply retro font
+		countdownText.setFill(Color.WHITE);
+
+		// Calculate text width and center it dynamically
+		countdownText.setText("3");
+		double textWidth = countdownText.getLayoutBounds().getWidth();
+		countdownText.setLayoutX((getScreenWidth() - textWidth) / 2);
+		countdownText.setLayoutY(getScreenHeight() / 2);
+
+		root.getChildren().add(countdownText);
+
+		Timeline countdownTimeline = new Timeline(
+				new KeyFrame(Duration.seconds(0), e -> {
+					countdownText.setText("3");
+					double width = countdownText.getLayoutBounds().getWidth();
+					countdownText.setLayoutX((getScreenWidth() - width) / 2);
+				}),
+				new KeyFrame(Duration.seconds(1), e -> {
+					countdownText.setText("2");
+					double width = countdownText.getLayoutBounds().getWidth();
+					countdownText.setLayoutX((getScreenWidth() - width) / 2);
+				}),
+				new KeyFrame(Duration.seconds(2), e -> {
+					countdownText.setText("1");
+					double width = countdownText.getLayoutBounds().getWidth();
+					countdownText.setLayoutX((getScreenWidth() - width) / 2);
+				}),
+				new KeyFrame(Duration.seconds(3), e -> {
+					// Display the correct level dynamically
+					countdownText.setText("Level " + levelNumber);
+					double width = countdownText.getLayoutBounds().getWidth();
+					countdownText.setLayoutX((getScreenWidth() - width) / 2);
+				}),
+				new KeyFrame(Duration.seconds(4), e -> {
+					root.getChildren().remove(countdownText);
+					onComplete.run(); // Start game logic here
+				})
+		);
+
+		countdownTimeline.play();
+	}
+
+
+
 
 
 	public void resumeGame() {
@@ -479,6 +579,12 @@ public abstract class LevelParent extends Observable {
 	}
 
 
+
+	// Add a method to reset the user's health when transitioning to a new level
+	protected void resetUserHealth(int health) {
+		user.setHealth(health); // Reset the health
+		System.out.println("User health reset to: " + user.getHealth());
+	}
 
 
 	private void updateNumberOfEnemies() {

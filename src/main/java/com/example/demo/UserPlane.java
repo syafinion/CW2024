@@ -27,6 +27,11 @@ public class UserPlane extends FighterPlane {
 		velocityMultiplier = 0;
 		horizontalVelocityMultiplier = 0; // Initialize horizontal movement
 	}
+	public void setHealth(int health) {
+		this.health = health;
+		System.out.println("UserPlane health set to: " + this.health);
+	}
+
 
 	@Override
 	public void updatePosition() {

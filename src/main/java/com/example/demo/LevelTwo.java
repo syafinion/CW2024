@@ -8,11 +8,15 @@ public class LevelTwo extends LevelParent {
 	private static final int TOTAL_ENEMIES = 8;
 	private static final int KILLS_TO_ADVANCE = 20;
 	private static final double ENEMY_SPAWN_PROBABILITY = 0.30;
-	private static final int PLAYER_INITIAL_HEALTH = 4;
+	private static final int PLAYER_INITIAL_HEALTH = 5;
 
 	public LevelTwo(double screenHeight, double screenWidth) {
 		super(BACKGROUND_IMAGE_NAME, screenHeight, screenWidth, PLAYER_INITIAL_HEALTH);
+		resetUserHealth(PLAYER_INITIAL_HEALTH); // Ensure health is reset
+		System.out.println("User health initialized to: " + PLAYER_INITIAL_HEALTH);
 	}
+
+
 
 	@Override
 	protected void checkIfGameOver() {
@@ -31,8 +35,11 @@ public class LevelTwo extends LevelParent {
 
 	@Override
 	protected void initializeFriendlyUnits() {
-		getRoot().getChildren().add(getUser());
+		resetUserHealth(PLAYER_INITIAL_HEALTH); // Ensure health is reset first
+		getRoot().getChildren().add(getUser()); // Add the user to the scene
 	}
+
+
 
 	@Override
 	protected void spawnEnemyUnits() {

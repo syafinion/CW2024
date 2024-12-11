@@ -136,12 +136,14 @@ public class LevelView {
 	public void showGameOverImage() {
 		root.getChildren().add(gameOverImage);
 	}
-	
+
 	public void removeHearts(int heartsRemaining) {
 		int currentNumberOfHearts = heartDisplay.getContainer().getChildren().size();
+		System.out.println("Current hearts: " + currentNumberOfHearts + ", Hearts remaining: " + heartsRemaining);
 		for (int i = 0; i < currentNumberOfHearts - heartsRemaining; i++) {
 			heartDisplay.removeHeart();
 		}
 	}
+
 
 }
