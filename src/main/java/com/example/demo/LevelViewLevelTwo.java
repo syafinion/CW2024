@@ -25,8 +25,9 @@ public class LevelViewLevelTwo extends LevelView {
 		// Initialize shield
 		this.shieldImage = new ShieldImage(600, 100); // Position above boss
 
-		double healthBarXPosition = HEART_DISPLAY_X_POSITION + 900; // Adjust this value as needed
-		double healthBarYPosition = HEART_DISPLAY_Y_POSITION;
+		double healthBarXPosition = root.getScene().getWidth() * 0.7; // 70% from the left
+		double healthBarYPosition = root.getScene().getHeight() * 0.1; // 10% from the top
+
 
 		// Initialize health bar border
 		this.healthBarBorder = new Rectangle(HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT);
@@ -42,6 +43,17 @@ public class LevelViewLevelTwo extends LevelView {
 
 		addElementsToRoot();
 	}
+
+	public void adjustHealthBarPosition() {
+		double healthBarXPosition = root.getScene().getWidth() * 0.7;
+		double healthBarYPosition = root.getScene().getHeight() * 0.1;
+
+		healthBar.setLayoutX(healthBarXPosition);
+		healthBar.setLayoutY(healthBarYPosition);
+		healthBarBorder.setLayoutX(healthBarXPosition);
+		healthBarBorder.setLayoutY(healthBarYPosition);
+	}
+
 
 	private void addElementsToRoot() {
 		if (!root.getChildren().contains(healthBarBorder)) {
@@ -95,61 +107,36 @@ public class LevelViewLevelTwo extends LevelView {
 		System.out.println("Hiding shield");
 		shieldImage.hideShield();
 	}
-//	public void updateShieldPosition(double x, double y) {
-//		if (shieldImage != null) {
-//			// Adjust X and Y to align with the boss
-//			shieldImage.setLayoutX(x - (SHIELD_SIZE / 2)); // Center the shield
-//			shieldImage.setLayoutY(y - SHIELD_SIZE); // Position above the boss
-////			shieldImage.setFitHeight(300); // Larger size for visibility
-////			shieldImage.setFitWidth(300);
-////			shieldImage.setLayoutX(500); // Test static position
-////			shieldImage.setLayoutY(200);
-//			System.out.println("Shield repositioned to: (" + (x - (SHIELD_SIZE / 2)) + ", " + (y - SHIELD_SIZE) + ")");
-//		}
-//	}
 
+
+
+	// new working code
 //	public void updateShieldPosition(double bossX, double bossY) {
 //		if (shieldImage != null) {
-//			// Adjust X and Y to center the shield on the boss plane
-//			double shieldCenterX = bossX - (SHIELD_SIZE / 2);
-//			double shieldCenterY = bossY - (SHIELD_SIZE / 2);
-//			shieldImage.setLayoutX(shieldCenterX);
-//			shieldImage.setLayoutY(shieldCenterY);
-//
-//			System.out.println("Shield repositioned to: (" + shieldCenterX + ", " + shieldCenterY + ")");
-//		}
-//	}
-
-	public void updateShieldPosition(double bossX, double bossY) {
-		if (shieldImage != null) {
-			// Adjust X and Y to position the shield slightly in front of the boss plane
-			double shieldFrontX = bossX + 1; // Move shield slightly in front (increase X)
-			double shieldFrontY = bossY - (SHIELD_SIZE / 4); // Adjust vertically for better alignment
-
-			shieldImage.setLayoutX(shieldFrontX);
-			shieldImage.setLayoutY(shieldFrontY);
-
-			System.out.println("Shield repositioned to: (" + shieldFrontX + ", " + shieldFrontY + ")");
-		}
-	}
-
-//	public void updateShieldPosition(double bossX, double bossY) {
-//		if (shieldImage != null) {
-//			// Position the shield slightly in front of the jet
-//			double shieldFrontX = bossX + (SHIELD_SIZE / 4); // Shift the shield forward
-//			double shieldCenterY = bossY - (SHIELD_SIZE / 2); // Center vertically with the jet
+//			// Adjust X and Y to position the shield slightly in front of the boss plane
+//			double shieldFrontX = bossX + 1; // Move shield slightly in front (increase X)
+//			double shieldFrontY = bossY - (SHIELD_SIZE / 4); // Adjust vertically for better alignment
 //
 //			shieldImage.setLayoutX(shieldFrontX);
-//			shieldImage.setLayoutY(shieldCenterY);
+//			shieldImage.setLayoutY(shieldFrontY);
 //
-//			System.out.println("Shield repositioned to: (" + shieldFrontX + ", " + shieldCenterY + ")");
+//			System.out.println("Shield repositioned to: (" + shieldFrontX + ", " + shieldFrontY + ")");
 //		}
 //	}
 
+	@Override
+	public void updateShieldPosition(double bossX, double bossY) {
+		if (shieldImage != null) {
+			// Center the shield on the boss
+			double shieldX = bossX - (SHIELD_SIZE / 2);
+			double shieldY = bossY - (SHIELD_SIZE / 2);
 
+			shieldImage.setLayoutX(shieldX);
+			shieldImage.setLayoutY(shieldY);
 
-
-
-
+			System.out.println("Shield repositioned to: (" + shieldX + ", " + shieldY + ")");
+		}
+	}
+	
 
 }

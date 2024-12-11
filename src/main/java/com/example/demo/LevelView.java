@@ -78,8 +78,9 @@ public class LevelView {
 		// Calculate positions dynamically
 		double sceneWidth = root.getScene().getWidth();
 		double killCountTextWidth = killCountDisplay.getLayoutBounds().getWidth();
-		double killCountXPosition = (sceneWidth - killCountTextWidth) / 2 + xOffset; // Center horizontally and apply offset
-		double killCountYPosition = HEART_DISPLAY_Y_POSITION + yOffset; // Same vertical position as hearts and apply offset
+		double killCountXPosition = root.getScene().getWidth() * 0.5 - killCountDisplay.getLayoutBounds().getWidth() / 2; // Center horizontally
+		double killCountYPosition = root.getScene().getHeight() * 0.05; // 5% from the top
+
 
 		// Set position for kill count display
 		killCountDisplay.setLayoutX(killCountXPosition);
@@ -99,10 +100,31 @@ public class LevelView {
 	}
 
 
+	public void adjustKillCountPosition() {
+		double killCountXPosition = root.getScene().getWidth() * 0.5 - killCountDisplay.getLayoutBounds().getWidth() / 2;
+		double killCountYPosition = root.getScene().getHeight() * 0.05;
+
+		killCountDisplay.setLayoutX(killCountXPosition);
+		killCountDisplay.setLayoutY(killCountYPosition);
+	}
 
 
 
+	public void adjustPositionsForResolution() {
+		adjustHealthBarPosition();
+		adjustKillCountPosition();
+		updateShieldPosition(0, 0); // Recalculates shield position
+	}
 
+	public void adjustHealthBarPosition() {
+		// Default implementation: Do nothing
+		System.out.println("adjustHealthBarPosition is not implemented in LevelView.");
+	}
+
+	public void updateShieldPosition(double bossX, double bossY) {
+		// Default implementation: Do nothing
+		System.out.println("updateShieldPosition is not implemented in LevelView.");
+	}
 
 
 

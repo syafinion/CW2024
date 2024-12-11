@@ -90,6 +90,11 @@ public abstract class LevelParent extends Observable {
 		timeline.stop();
 	}
 
+	public LevelView getLevelView() {
+		return levelView;
+	}
+
+
 	private void updateScene() {
 		spawnEnemyUnits();
 		updateActors();
@@ -179,6 +184,11 @@ public abstract class LevelParent extends Observable {
 		setChanged();
 		notifyObservers("MAIN_MENU"); // Use a constant string identifier for the main menu
 	}
+
+	public double getScreenHeight() {
+		return this.scene.getHeight();
+	}
+
 
 
 

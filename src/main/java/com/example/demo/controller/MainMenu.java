@@ -1,5 +1,9 @@
 package com.example.demo.controller;
 
+import com.example.demo.LevelParent;
+import com.example.demo.LevelThree;
+import com.example.demo.LevelView;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -16,6 +20,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.geometry.Pos;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 public class MainMenu {
@@ -83,43 +88,64 @@ public class MainMenu {
 
     private Pane createSettingsPane() {
         Pane settingsPane = new Pane();
-        settingsPane.setPrefSize(500, 300); // Increase height to accommodate buttons
+        settingsPane.setPrefSize(700, 400); // Increased size of the settings pane
 
         // Background for settings pane
-        Rectangle bg = new Rectangle(500, 300);
+        Rectangle bg = new Rectangle(700, 400); // Match the size of the pane
         bg.setFill(Color.BLACK);
         bg.setOpacity(0.8);
 
         // Title for settings
         Text settingsTitle = new Text("SETTINGS");
         settingsTitle.setFill(Color.WHITE);
-        settingsTitle.setFont(Font.font("Times New Roman", FontWeight.SEMI_BOLD, 30));
-        settingsTitle.setX(200);
-        settingsTitle.setY(50);
+        settingsTitle.setFont(Font.font("Times New Roman", FontWeight.SEMI_BOLD, 40)); // Larger font size
+
+        // Center layout container for options
+        VBox centerLayout = new VBox(20); // 20 px spacing between elements
+        centerLayout.setAlignment(Pos.CENTER);
+        centerLayout.setPrefSize(700, 300);
 
         // Resolution options
         MenuBox resolutionMenu = new MenuBox(
                 new MenuItem("1280 x 720 (Windowed)", () -> setPendingResolution(1280, 720, false)),
                 new MenuItem("1600 x 900 (Windowed)", () -> setPendingResolution(1600, 900, false)),
-                new MenuItem("1920 x 1080 (Windowed)", () -> setPendingResolution(1920, 1080, false)),
+                new MenuItem("1920 x 1080 (Windowed)", () -> {
+                    Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+                    if (screenBounds.getWidth() >= 1920 && screenBounds.getHeight() >= 1080) {
+                        setPendingResolution(1920, 1080, false);
+                    } else {
+                        System.out.println("1920 x 1080 is not supported on this screen.");
+                        setPendingResolution((int) screenBounds.getWidth(), (int) screenBounds.getHeight(), false); // Fallback to max available
+                    }
+                }),
+                new MenuItem("Default (1300 x 750)", () -> setPendingResolution(1300, 750, false)),
                 new MenuItem("Toggle Fullscreen", this::togglePendingFullscreen)
         );
-        resolutionMenu.setLayoutX(100);
-        resolutionMenu.setLayoutY(80);
 
-        // Add Apply and Cancel buttons
+        // Apply and Cancel buttons
         StackPane applyButton = createButton("Apply", () -> applyResolution(settingsPane));
         StackPane cancelButton = createButton("Cancel", () -> closeSettings(settingsPane));
 
-        applyButton.setLayoutX(150);
-        applyButton.setLayoutY(220);
+        // Horizontal layout for buttons
+        VBox buttonsLayout = new VBox(10); // 10 px spacing between buttons
+        buttonsLayout.setAlignment(Pos.CENTER);
+        buttonsLayout.getChildren().addAll(applyButton, cancelButton);
 
-        cancelButton.setLayoutX(300);
-        cancelButton.setLayoutY(220);
+        // Add all elements to the center layout
+        centerLayout.getChildren().addAll(resolutionMenu, buttonsLayout);
 
-        settingsPane.getChildren().addAll(bg, settingsTitle, resolutionMenu, applyButton, cancelButton);
+        // Position title and center layout
+        settingsTitle.setLayoutX(700 / 2.0 - settingsTitle.getLayoutBounds().getWidth() / 2); // Center horizontally
+        settingsTitle.setLayoutY(50); // Position title near the top
+        centerLayout.setLayoutY(100); // Adjust vertical position
+
+        settingsPane.getChildren().addAll(bg, settingsTitle, centerLayout);
+        settingsPane.setVisible(false); // Initially hidden
         return settingsPane;
     }
+
+
+
 
     private StackPane createButton(String name, Runnable action) {
         StackPane button = new StackPane();
@@ -155,10 +181,19 @@ public class MainMenu {
     }
 
     private void applyResolution(Pane settingsPane) {
+        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+
+        if (pendingWidth > screenBounds.getWidth() || pendingHeight > screenBounds.getHeight()) {
+            System.out.println("The selected resolution is not supported. Falling back to maximum available resolution.");
+            setPendingResolution((int) screenBounds.getWidth(), (int) screenBounds.getHeight(), pendingFullscreen);
+        }
+
         changeResolution(pendingWidth, pendingHeight, pendingFullscreen);
-        settingsPane.setVisible(false); // Close settings pane
+        settingsPane.setVisible(false);
+        adjustLayouts();// Close settings pane
         System.out.println("Resolution applied: " + pendingWidth + "x" + pendingHeight + " Fullscreen: " + pendingFullscreen);
     }
+
 
     private void closeSettings(Pane settingsPane) {
         settingsPane.setVisible(false);
@@ -169,18 +204,31 @@ public class MainMenu {
 
     private void changeResolution(int width, int height, boolean fullscreen) {
         Stage stage = controller.getStage();
-        stage.setFullScreen(fullscreen);
+        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
 
-        if (!fullscreen) {
-            stage.setWidth(width);
-            stage.setHeight(height);
-            stage.centerOnScreen(); // Center the window
+        if (fullscreen) {
+            stage.setFullScreen(true); // Enable fullscreen mode
+        } else {
+            stage.setFullScreen(false); // Disable fullscreen
+
+            // Limit the stage size to fit within the screen bounds
+            double finalWidth = Math.min(width, screenBounds.getWidth());
+            double finalHeight = Math.min(height, screenBounds.getHeight());
+
+            stage.setWidth(finalWidth);
+            stage.setHeight(finalHeight);
+
+            // Center the stage within the screen bounds
+            stage.setX(screenBounds.getMinX() + (screenBounds.getWidth() - finalWidth) / 2);
+            stage.setY(screenBounds.getMinY() + (screenBounds.getHeight() - finalHeight) / 2);
         }
 
-        adjustLayouts(); // Immediately adjust layouts after resolution change
-
+        adjustLayouts(); // Adjust UI layouts based on the new dimensions
         System.out.println("Resolution changed to: " + width + "x" + height + " Fullscreen: " + fullscreen);
     }
+
+
+
 
 
 
@@ -194,7 +242,24 @@ public class MainMenu {
             settingsPane.layoutXProperty().bind(root.widthProperty().subtract(settingsPane.prefWidthProperty()).divide(2)); // Bind to the prefWidth
             settingsPane.layoutYProperty().bind(root.heightProperty().subtract(settingsPane.prefHeightProperty()).divide(2)); // Center vertically
         }
+
+        adjustLayoutsForResolution();
     }
+
+    private void adjustLayoutsForResolution() {
+        LevelView levelView = controller.getCurrentLevelView();
+        if (levelView != null) {
+            levelView.adjustKillCountPosition();
+            levelView.adjustHealthBarPosition();
+        }
+
+        LevelParent currentLevel = controller.getCurrentLevel();
+        if (currentLevel instanceof LevelThree) {
+            ((LevelThree) currentLevel).adjustBossPosition();
+        }
+    }
+
+
 
 
     private void toggleFullscreen() {
@@ -206,20 +271,12 @@ public class MainMenu {
 
     private void toggleSettings(Pane root) {
         for (var node : root.getChildren()) {
-            if (node instanceof Pane && ((Pane) node).getPrefWidth() == 500) {
-                node.setVisible(!node.isVisible());
-
-                if (node.isVisible()) {
-                    // Highlight default resolution
-                    ((MenuBox) ((Pane) node).getChildren().get(2))
-                            .getChildren().filtered(n -> n instanceof MenuItem)
-                            .stream()
-                            .findFirst()
-                            .ifPresent(menuItem -> ((MenuItem) menuItem).fireEvent(new javafx.event.ActionEvent()));
-                }
+            if (node instanceof Pane && ((Pane) node).getPrefWidth() == 700) { // Match the size of the settings pane
+                node.setVisible(!node.isVisible()); // Toggle visibility
             }
         }
     }
+
 
 
 

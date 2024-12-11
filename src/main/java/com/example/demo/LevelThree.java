@@ -45,7 +45,7 @@ public class LevelThree extends LevelParent {
     @Override
     protected void updateLevelView() {
         super.updateLevelView(); // Update hearts and other UI elements
-
+        adjustBossPosition();
         if (boss != null) {
             levelView.updateBossHealthBar(boss.getHealth(), 100);
 
@@ -65,6 +65,17 @@ public class LevelThree extends LevelParent {
         }
     }
 
+    public void adjustBossPosition() {
+        if (boss != null) {
+            double bossX = getScreenWidth() * 0.9 - boss.getBoundsInLocal().getWidth() / 2; // 90% from the left edge
+            double bossY = getScreenHeight() * 0.5 - boss.getBoundsInLocal().getHeight() / 2; // Centered vertically
+
+            boss.setLayoutX(bossX);
+            boss.setLayoutY(bossY);
+
+            System.out.println("Boss position adjusted to: (" + bossX + ", " + bossY + ")");
+        }
+    }
 
 
 

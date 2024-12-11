@@ -5,11 +5,16 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Observable;
 import java.util.Observer;
 
+import com.example.demo.LevelView;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import com.example.demo.LevelParent;
+import javafx.animation.AnimationTimer;
+import javafx.geometry.Rectangle2D;
+import javafx.stage.Screen;
 
 public class Controller implements Observer {
 
@@ -24,11 +29,36 @@ public class Controller implements Observer {
 
 	public void launchGame() throws ClassNotFoundException, NoSuchMethodException, SecurityException,
 			InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		// Get the screen bounds
+		Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
 
-		stage.setFullScreen(true); // Start in fullscreen windowed mode
-		stage.setFullScreenExitHint(""); // Disable the fullscreen exit hint
+		// Set the stage to fit the screen bounds
+		stage.setX(screenBounds.getMinX());
+		stage.setY(screenBounds.getMinY());
+		stage.setWidth(screenBounds.getWidth());
+		stage.setHeight(screenBounds.getHeight());
+
+		// Lock the stage in place and make it non-resizable
+		stage.setResizable(false);
+		stage.setFullScreen(false); // Windowed fullscreen
+
+		// Ensure the scene uses the full stage dimensions
+		stage.setScene(new Scene(new Pane())); // Temporary scene to ensure no gaps
+
 		stage.show();
+
+		// Show the main menu
 		showMainMenu();
+	}
+	public LevelView getCurrentLevelView() {
+		if (currentLevel != null) {
+			return currentLevel.getLevelView();
+		}
+		return null;
+	}
+
+	public LevelParent getCurrentLevel() {
+		return currentLevel;
 	}
 
 
