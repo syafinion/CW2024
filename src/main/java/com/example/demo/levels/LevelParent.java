@@ -30,7 +30,7 @@ public abstract class LevelParent extends Observable {
 	private final double enemyMaximumYPosition;
 
 	private final Group root;
-	private final Timeline timeline;
+	protected final Timeline timeline;
 	private final UserPlane user;
 	private final Scene scene;
 	private final ImageView background;
@@ -51,6 +51,8 @@ public abstract class LevelParent extends Observable {
 	private final Controller controller;
 
 	private LevelUIManager levelUIManager;
+	private Text levelText;
+	private Text objectiveText;
 
 	public LevelParent(String backgroundImageName, double screenHeight, double screenWidth, int playerInitialHealth, Controller controller) {
 		this.root = new Group();
@@ -114,7 +116,10 @@ public abstract class LevelParent extends Observable {
 		levelView.showHeartDisplay();
 
 		// Start the countdown before enabling gameplay
-		startCountdown(() -> timeline.play());
+		startCountdown(() -> {
+			timeline.play(); // Start the game timeline
+			root.getChildren().remove(levelText); // Remove the level text
+		});
 
 		// Load a retro font
 		Font retroFont = Font.loadFont(getClass().getResourceAsStream("/com/example/demo/images/PressStart2P-Regular.ttf"), 20);
@@ -123,7 +128,7 @@ public abstract class LevelParent extends Observable {
 		String levelNumber = getClass().getSimpleName().replace("Level", "");
 
 		// Level text display
-		Text levelText = new Text("Level " + levelNumber);
+		levelText = new Text("Level " + levelNumber); // Assign to instance variable
 		levelText.setFont(retroFont); // Apply retro font
 		levelText.setFill(Color.WHITE);
 
@@ -134,18 +139,49 @@ public abstract class LevelParent extends Observable {
 
 		root.getChildren().add(levelText);
 
-		// Fade-out effect after 2 seconds
-		Timeline hideLevelText = new Timeline(new KeyFrame(Duration.seconds(2), e -> root.getChildren().remove(levelText)));
-		hideLevelText.play();
+		// Objective text display
+		objectiveText = new Text(); // Assign to instance variable
+		if ("One".equals(levelNumber)) {
+			objectiveText.setText("Objective: Kill 10 enemies");
+		} else if ("Two".equals(levelNumber)) {
+			objectiveText.setText("Objective: Kill 20 enemies");
+		}
+		objectiveText.setFont(retroFont);
+		objectiveText.setFill(Color.YELLOW);
 
-		// Fade-in effect for level start
-		FadeTransition fadeIn = new FadeTransition(Duration.seconds(1), root);
-		fadeIn.setFromValue(0.0);
-		fadeIn.setToValue(1.0);
+		// Initially position the objective text in the center of the screen
+		double initialObjectiveTextX = getScreenWidth() / 2 - objectiveText.getLayoutBounds().getWidth() / 2;
+		double initialObjectiveTextY = getScreenHeight() / 2 + 100; // Slightly below the level text
+		objectiveText.setLayoutX(initialObjectiveTextX);
+		objectiveText.setLayoutY(initialObjectiveTextY);
+
+		root.getChildren().add(objectiveText);
+
+		// Fade-in animation for the objective text
+		FadeTransition fadeIn = new FadeTransition(Duration.seconds(1), objectiveText);
+		fadeIn.setFromValue(0);
+		fadeIn.setToValue(1);
+		fadeIn.setOnFinished(event -> {
+			// Once fade-in is complete, move the text to its final position
+			double finalObjectiveTextX = getScreenWidth() / 2 - objectiveText.getLayoutBounds().getWidth() / 2;
+			double finalObjectiveTextY = getScreenHeight() * 0.12; // Position below the health bar
+
+			TranslateTransition moveText = new TranslateTransition(Duration.seconds(1), objectiveText);
+			moveText.setToX(finalObjectiveTextX - initialObjectiveTextX);
+			moveText.setToY(finalObjectiveTextY - initialObjectiveTextY);
+			moveText.play();
+		});
 		fadeIn.play();
+
+		// Fade-in animation for the level start
+		FadeTransition levelFadeIn = new FadeTransition(Duration.seconds(1), root);
+		levelFadeIn.setFromValue(0.0);
+		levelFadeIn.setToValue(1.0);
+		levelFadeIn.play();
 
 		return scene;
 	}
+
 
 
 	public void startGame() {
@@ -543,11 +579,13 @@ public abstract class LevelParent extends Observable {
 
 	protected void winGame() {
 		timeline.stop(); // Stop the game timeline
+		levelUIManager.showWinMenu(this::restartToLevelOne, this::goToMainMenu); // Display win menu
+		System.out.println("Boss defeated. Transitioning to win menu.");
 	}
 
 
 
-	protected UserPlane getUser() {
+	public UserPlane getUser() {
 		return user;
 	}
 

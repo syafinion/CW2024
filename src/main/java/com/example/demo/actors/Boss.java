@@ -169,7 +169,7 @@ public class Boss extends FighterPlane {
 		// 1. The boss's health is below 75%, AND
 		// 2. A random chance based on the configured BOSS_SHIELD_PROBABILITY, AND
 		// 3. No cooldown is in effect.
-		boolean shouldActivate = getHealth() <= 99 && Math.random() < BOSS_SHIELD_PROBABILITY && shieldCooldownFrames == 0;
+		boolean shouldActivate = getHealth() <= 75 && Math.random() < BOSS_SHIELD_PROBABILITY && shieldCooldownFrames == 0;
 		System.out.println("Shield activation condition met: " + shouldActivate);
 		return shouldActivate;
 	}

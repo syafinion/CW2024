@@ -19,6 +19,8 @@ public class LevelOne extends LevelParent {
 	}
 
 
+
+
 	@Override
 	protected void checkIfGameOver() {
 		if (userIsDestroyed()) {
@@ -33,6 +35,8 @@ public class LevelOne extends LevelParent {
 					", Required kills to advance: " + KILLS_TO_ADVANCE);
 		}
 	}
+
+
 
 
 	@Override

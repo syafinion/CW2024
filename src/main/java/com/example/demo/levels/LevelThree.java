@@ -14,7 +14,7 @@ import javafx.util.Duration;
 public class LevelThree extends LevelParent {
 
     protected static final String BACKGROUND_IMAGE_NAME = "/com/example/demo/images/levelthreebg.gif";
-    private static final int PLAYER_INITIAL_HEALTH = 5;
+    private static final int PLAYER_INITIAL_HEALTH = 8;
     protected Boss boss;
     private LevelViewLevelTwo levelView;
 
@@ -62,11 +62,13 @@ public class LevelThree extends LevelParent {
         if (userIsDestroyed()) {
             loseGame();
         } else if (boss.isDestroyed()) {
+            timeline.stop(); // Ensure the timeline stops
             // Remove the objective text
             getRoot().getChildren().removeIf(node -> node instanceof Text && ((Text) node).getText().contains("Objective"));
             winGame();
         }
     }
+
 
 
     @Override

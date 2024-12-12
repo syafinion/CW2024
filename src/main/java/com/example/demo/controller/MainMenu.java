@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.actors.UserPlane;
 import com.example.demo.levels.LevelParent;
 import com.example.demo.levels.LevelThree;
 import com.example.demo.views.LevelView;
@@ -120,7 +121,7 @@ public class MainMenu {
         DropShadow glow = new DropShadow();
         glow.setColor(color);
         glow.setRadius(10);
-        glow.setSpread(0.4);
+        glow.setSpread(0.1);
         text.setEffect(glow);
     }
 
@@ -131,7 +132,7 @@ public class MainMenu {
         settingsPane.setPrefSize(700, 500); // Increased height to accommodate buttons
 
         // Background rectangle
-        Rectangle bg = new Rectangle(700, 500); // Match the updated size
+        Rectangle bg = new Rectangle(700, 600); // Match the updated size
         bg.setFill(Color.BLACK);
         bg.setOpacity(0.8);
 
@@ -194,6 +195,38 @@ public class MainMenu {
         VBox volumeControl = new VBox(10, volumeLabel, volumeSlider);
         volumeControl.setAlignment(Pos.CENTER);
 
+        // gunshot sounds slider
+
+        Text gunshotVolumeLabel = new Text("Gunshot Volume: 50%");
+        gunshotVolumeLabel.setFill(Color.WHITE);
+        gunshotVolumeLabel.setFont(pressStartFont);
+
+        javafx.scene.control.Slider gunshotVolumeSlider = new javafx.scene.control.Slider(0, 1, 0.5); // Default at 50%
+        gunshotVolumeSlider.setPrefWidth(200);
+        gunshotVolumeSlider.setValue(controller.getPendingGunshotVolume()); // Initialize with the pending value
+        gunshotVolumeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            double volume = newValue.doubleValue();
+            double percentage = volume * 100;
+            gunshotVolumeLabel.setText(String.format("Gunshot Volume: %.0f%%", percentage));
+
+            // Update the pending volume and apply if possible
+            controller.setPendingGunshotVolume(volume);
+            UserPlane userPlane = controller.getUserPlane();
+            if (userPlane != null) {
+                userPlane.setGunshotVolume(volume);
+                System.out.println("Gunshot volume updated to: " + percentage + "%");
+            } else {
+                System.out.println("UserPlane is not initialized. Pending gunshot volume updated.");
+            }
+        });
+
+
+
+
+        VBox gunshotVolumeControl = new VBox(10, gunshotVolumeLabel, gunshotVolumeSlider);
+        gunshotVolumeControl.setAlignment(Pos.CENTER);
+
+
         // Apply and Cancel buttons
         StackPane applyButton = createButton("Apply", () -> applyResolution(settingsPane));
         StackPane cancelButton = createButton("Cancel", () -> closeSettings(settingsPane));
@@ -203,7 +236,8 @@ public class MainMenu {
         buttonsLayout.getChildren().addAll(applyButton, cancelButton);
 
         // Adding all elements to center layout
-        centerLayout.getChildren().addAll(resolutionMenu, volumeControl, buttonsLayout);
+        centerLayout.getChildren().addAll(gunshotVolumeControl, resolutionMenu, volumeControl, buttonsLayout);
+
 
         // Position title and center layout
         settingsTitle.setLayoutX(settingsPane.getPrefWidth() / 2 - settingsTitle.getLayoutBounds().getWidth() / 2);
@@ -215,14 +249,6 @@ public class MainMenu {
         settingsPane.setVisible(false);
         return settingsPane;
     }
-
-
-
-
-
-
-
-
 
 
     private StackPane createButton(String name, Runnable action) {
@@ -401,23 +427,19 @@ public class MainMenu {
     private static class MenuBox extends VBox {
         public MenuBox(MenuItem... items) {
             setAlignment(Pos.CENTER);
+            setSpacing(10); // Add spacing between menu items for better layout
 
-            // Calculate maximum width of all MenuItems
-            double maxWidth = 0;
             for (MenuItem item : items) {
-                maxWidth = Math.max(maxWidth, item.getMenuItemWidth());
                 getChildren().addAll(item, createSeparator());
             }
 
-            // Apply width with padding
-            double finalWidth = maxWidth + 50; // Add 50 units of padding
-            setPrefWidth(finalWidth);
-            setMaxWidth(finalWidth); // Ensure max width is also applied
+            setPrefWidth(MenuItem.FIXED_WIDTH + 50); // Apply fixed width with padding
+            setMaxWidth(MenuItem.FIXED_WIDTH + 50); // Ensure max width is consistent
         }
 
         private Line createSeparator() {
             Line sep = new Line();
-            sep.setEndX(210); // Adjust this value if needed
+            sep.setEndX(MenuItem.FIXED_WIDTH - 20); // Adjust separator width
             sep.setStroke(Color.DARKGREY);
             return sep;
         }
@@ -425,23 +447,21 @@ public class MainMenu {
         @Override
         protected void layoutChildren() {
             super.layoutChildren();
-            // Reapply width dynamically
+            // Reapply fixed width dynamically
             setPrefWidth(getMaxWidth());
         }
     }
 
 
 
-
-
-
-
     private static class MenuItem extends StackPane {
+        private static final double FIXED_WIDTH = 500; // Fixed width for all menu items
+        private static final double FIXED_HEIGHT = 50; // Fixed height for all menu items
         private static MenuItem selectedMenuItem = null; // Track the currently selected item
         private final Rectangle bg; // Background rectangle for easier updates
 
         public MenuItem(String name, Runnable action) {
-            bg = new Rectangle(220, 40);
+            bg = new Rectangle(FIXED_WIDTH, FIXED_HEIGHT);
             bg.setFill(Color.BLACK); // Retro-style black background
             bg.setStroke(Color.YELLOW); // Yellow outline for retro style
             bg.setStrokeWidth(2);
@@ -450,10 +470,7 @@ public class MainMenu {
             text.setFill(Color.YELLOW);
             text.setFont(Font.loadFont(getClass().getResourceAsStream("/com/example/demo/images/PressStart2P-Regular.ttf"), 20));
 
-            // Dynamically update the rectangle width based on text
-            double textWidth = text.getLayoutBounds().getWidth();
-            bg.setWidth(Math.max(220, textWidth + 30)); // Adjust width with padding
-
+            // Center the text inside the box
             setAlignment(Pos.CENTER);
             getChildren().addAll(bg, text);
 
@@ -484,11 +501,12 @@ public class MainMenu {
             });
         }
 
-        // Custom method to return the width of the MenuItem
+        // Custom method to return the fixed width of the MenuItem
         public double getMenuItemWidth() {
-            return bg.getWidth();
+            return FIXED_WIDTH;
         }
     }
+
 
 
 

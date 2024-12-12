@@ -1,6 +1,7 @@
 package com.example.demo.actors;
 
 import javafx.scene.Scene;
+import javafx.scene.media.AudioClip;
 
 public class UserPlane extends FighterPlane {
 
@@ -17,9 +18,13 @@ public class UserPlane extends FighterPlane {
 
 	private final Scene scene;
 
+	private static final String SHOOTING_SOUND = "/com/example/demo/images/shootingsound.wav";
+	private final AudioClip shootingSound;
+
 
 	private int horizontalVelocityMultiplier; // New variable for horizontal movement
 	private static final int FIRE_COOLDOWN_MILLIS = 300;
+	private double gunshotVolume = 0.5; // Default volume (50%)
 
 	private long lastFireTime;
 
@@ -29,7 +34,23 @@ public class UserPlane extends FighterPlane {
 		velocityMultiplier = 0;
 		horizontalVelocityMultiplier = 0; // Initialize horizontal movement
 		this.lastFireTime = 0;
+
+		// Initialize the shooting sound
+		shootingSound = new AudioClip(getClass().getResource(SHOOTING_SOUND).toExternalForm());
 	}
+
+	public void setGunshotVolume(double volume) {
+		this.gunshotVolume = Math.min(1.0, Math.max(0.0, volume)); // Clamp between 0.0 and 1.0
+		shootingSound.setVolume(this.gunshotVolume); // Update the AudioClip volume
+
+		// Debugging
+		if (this.gunshotVolume == 0) {
+			System.out.println("Gunshot volume muted.");
+		} else {
+			System.out.println("Gunshot volume set to: " + (this.gunshotVolume * 100) + "%");
+		}
+	}
+
 
 	public void setHealth(int health) {
 		this.health = health;
@@ -88,11 +109,20 @@ public class UserPlane extends FighterPlane {
 		}
 		lastFireTime = currentTime; // Update last fire time
 
+		// Ensure the shooting sound volume is set to the latest value
+		shootingSound.setVolume(gunshotVolume);
+		if (gunshotVolume > 0) {
+			shootingSound.play(); // Only play the sound if volume > 0
+		}
+
 		// Calculate the projectile's position relative to the jet's current position
 		double adjustedProjectileX = getLayoutX() + getTranslateX() + PROJECTILE_X_POSITION;
 		double adjustedProjectileY = getLayoutY() + getTranslateY() + PROJECTILE_Y_POSITION_OFFSET;
 		return new UserProjectile(adjustedProjectileX, adjustedProjectileY);
 	}
+
+
+
 
 
 

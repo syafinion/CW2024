@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Observable;
 import java.util.Observer;
 
+import com.example.demo.actors.UserPlane;
 import com.example.demo.views.LevelView;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -25,13 +26,16 @@ public class Controller implements Observer {
 	private LevelParent currentLevel;
 
 	private double currentVolume = 0.5; // Default to 50%
-
+	private double pendingGunshotVolume = 0.5;
 
 	public Controller(Stage stage) {
 		this.stage = stage;
 		playBackgroundMusic();
 	}
 
+	public double getPendingGunshotVolume() {
+		return pendingGunshotVolume;
+	}
 	public void setVolume(double volume) {
 		currentVolume = volume; // Update global volume setting
 		if (mediaPlayer != null) {
@@ -40,7 +44,20 @@ public class Controller implements Observer {
 		System.out.println("Volume set to: " + (int) (volume * 100) + "%");
 	}
 
+	public void setPendingGunshotVolume(double volume) {
+		this.pendingGunshotVolume = volume;
+		System.out.println("Pending gunshot volume set to: " + (volume * 100) + "%");
+	}
 
+	public void applyPendingGunshotVolume() {
+		UserPlane userPlane = getUserPlane();
+		if (userPlane != null) {
+			userPlane.setGunshotVolume(pendingGunshotVolume);
+			System.out.println("Pending gunshot volume applied: " + (pendingGunshotVolume * 100) + "%");
+		} else {
+			System.err.println("Failed to apply pending gunshot volume. UserPlane is still null.");
+		}
+	}
 
 	public void launchGame() throws ClassNotFoundException, NoSuchMethodException, SecurityException,
 			InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
@@ -88,6 +105,20 @@ public class Controller implements Observer {
 			mediaPlayer.dispose();
 		}
 	}
+	public UserPlane getUserPlane() {
+		if (currentLevel == null) {
+			System.err.println("Current level is null, UserPlane cannot be retrieved.");
+			return null;
+		}
+
+		UserPlane userPlane = currentLevel.getUser();
+		if (userPlane == null) {
+			System.err.println("UserPlane instance is null in the current level.");
+		}
+
+		return userPlane;
+	}
+
 
 	public void exitGame() {
 		stopMusic();
@@ -137,15 +168,15 @@ public class Controller implements Observer {
 			}
 		});
 
-		// Apply current volume to the media player when entering a new level
-		if (mediaPlayer != null) {
-			mediaPlayer.setVolume(currentVolume);
-		}
+		// Apply pending gunshot volume to the UserPlane
+		applyPendingGunshotVolume();
 
 		Scene scene = currentLevel.initializeScene();
 		stage.setScene(scene);
 		currentLevel.startGame();
 	}
+
+
 
 
 	@Override
