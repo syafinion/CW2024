@@ -13,9 +13,9 @@ import javafx.util.Duration;
 
 public class LevelThree extends LevelParent {
 
-    private static final String BACKGROUND_IMAGE_NAME = "/com/example/demo/images/levelthreebg.gif";
+    protected static final String BACKGROUND_IMAGE_NAME = "/com/example/demo/images/levelthreebg.gif";
     private static final int PLAYER_INITIAL_HEALTH = 5;
-    private Boss boss;
+    protected Boss boss;
     private LevelViewLevelTwo levelView;
 
     public LevelThree(double screenHeight, double screenWidth, Controller controller) {
