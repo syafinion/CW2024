@@ -85,7 +85,7 @@ public class MainMenu {
 
         // Title - Replace the text title with the GIF image
         try {
-            ImageView titleImage = new ImageView(new Image(getClass().getResource("/com/example/demo/images/skybattletitle.gif").toExternalForm()));
+            ImageView titleImage = new ImageView(new Image(getClass().getResource("/com/example/demo/images/skybattletitle.png").toExternalForm()));
             titleImage.setPreserveRatio(true);
             titleImage.setFitHeight(200); // Set a reasonable height for the title
 
@@ -143,7 +143,7 @@ public class MainMenu {
         settingsPane.setPrefSize(700, 500); // Increased height to accommodate buttons
 
         // Background rectangle
-        Rectangle bg = new Rectangle(700, 700); // Match the updated size
+        Rectangle bg = new Rectangle(700, 500); // Match the updated size
         bg.setFill(Color.BLACK);
         bg.setOpacity(0.8);
 
@@ -175,7 +175,6 @@ public class MainMenu {
         // Resolution menu
         MenuBox resolutionMenu = new MenuBox(
                 new MenuItem("1280 x 720 (Windowed)", () -> setPendingResolution(1280, 720, false)),
-                new MenuItem("1600 x 900 (Windowed)", () -> setPendingResolution(1600, 900, false)),
                 new MenuItem("1920 x 1080 (Windowed)", () -> {
                     Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
                     if (screenBounds.getWidth() >= 1920 && screenBounds.getHeight() >= 1080) {
@@ -185,9 +184,9 @@ public class MainMenu {
                         setPendingResolution((int) screenBounds.getWidth(), (int) screenBounds.getHeight(), false);
                     }
                 }),
-                new MenuItem("Default (1300 x 750)", () -> setPendingResolution(1300, 750, false)),
                 new MenuItem("Toggle Fullscreen", this::togglePendingFullscreen)
         );
+
 
         // Volume slider with label
         Text volumeLabel = new Text("Music Volume: 50%");
