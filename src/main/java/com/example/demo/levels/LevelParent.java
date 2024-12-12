@@ -53,7 +53,9 @@ public abstract class LevelParent extends Observable {
 	private LevelUIManager levelUIManager;
 	private Text levelText;
 	private Text objectiveText;
-
+	public UserPlane getUserPlane() {
+		return user;
+	}
 	public LevelParent(String backgroundImageName, double screenHeight, double screenWidth, int playerInitialHealth, Controller controller) {
 		this.root = new Group();
 		this.scene = new Scene(root, screenWidth, screenHeight);

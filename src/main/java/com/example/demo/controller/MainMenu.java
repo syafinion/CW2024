@@ -83,10 +83,21 @@ public class MainMenu {
             System.err.println("Error loading background image: " + e.getMessage());
         }
 
-        // Title
-        Title title = new Title("Sky Battle");
-        title.layoutXProperty().bind(root.widthProperty().subtract(title.getCustomPrefWidth()).divide(2));
-        title.layoutYProperty().bind(root.heightProperty().divide(8)); // Adjusted for better centering
+        // Title - Replace the text title with the GIF image
+        try {
+            ImageView titleImage = new ImageView(new Image(getClass().getResource("/com/example/demo/images/skybattletitle.gif").toExternalForm()));
+            titleImage.setPreserveRatio(true);
+            titleImage.setFitHeight(200); // Set a reasonable height for the title
+
+            // Center the title image and move it slightly to the left
+            titleImage.layoutXProperty().bind(root.widthProperty().subtract(titleImage.fitWidthProperty()).divide(2).subtract(85)); // Adjust X to move left
+            titleImage.layoutYProperty().bind(root.heightProperty().divide(8)); // Same position as before
+
+            root.getChildren().add(titleImage);
+        } catch (Exception e) {
+            System.err.println("Error loading title image: " + e.getMessage());
+        }
+
 
         // Menu Items
         vbox = new MenuBox( // Assign to instance variable
@@ -112,7 +123,7 @@ public class MainMenu {
         settingsPane.layoutXProperty().bind(root.widthProperty().subtract(settingsPane.prefWidthProperty()).divide(2));
         settingsPane.layoutYProperty().bind(root.heightProperty().subtract(settingsPane.prefHeightProperty()).divide(2));
 
-        root.getChildren().addAll(title, vbox, settingsPane);
+        root.getChildren().addAll(vbox, settingsPane);
         return new Scene(root);
     }
 

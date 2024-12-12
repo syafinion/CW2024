@@ -15,7 +15,7 @@ public class Boss extends FighterPlane {
 	private static final double INITIAL_X_POSITION = 1000.0;
 	private static final double INITIAL_Y_POSITION = 400;
 	private static final double PROJECTILE_Y_POSITION_OFFSET = 75.0;
-	private static final double BOSS_FIRE_RATE = .04;
+	private static final double BOSS_FIRE_RATE = .0083;
 	private static final double BOSS_SHIELD_PROBABILITY = 0.2; // test
 	private static final int SHIELD_COOLDOWN_FRAMES = 300;
 	private static final int IMAGE_HEIGHT = 300;
@@ -87,10 +87,11 @@ public class Boss extends FighterPlane {
 			// Calculate the fireball's position relative to the boss's current position
 			double adjustedProjectileX = getLayoutX() + getTranslateX() - 50; // In front of the boss
 			double adjustedProjectileY = getLayoutY() + getTranslateY() + PROJECTILE_Y_POSITION_OFFSET;
-			return new BossProjectile(adjustedProjectileX, adjustedProjectileY);
+			return new BossProjectile(adjustedProjectileX, adjustedProjectileY, level.getUserPlane());
 		}
 		return null;
 	}
+
 
 	private void updateShieldHealthBar() {
 		if (level.getLevelView() instanceof LevelViewLevelTwo) {
