@@ -85,6 +85,11 @@ public abstract class LevelParent extends Observable {
 
 	protected abstract LevelView instantiateLevelView();
 
+	protected boolean isGamePaused() {
+		return isPaused;
+	}
+
+
 	protected void updateLevelView() {
 		levelUIManager.updateLevelView(user, levelView, boss);
 	}

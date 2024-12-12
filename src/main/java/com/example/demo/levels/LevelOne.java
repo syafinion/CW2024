@@ -7,11 +7,11 @@ import com.example.demo.controller.Controller;
 
 public class LevelOne extends LevelParent {
 
-	private static final String BACKGROUND_IMAGE_NAME = "/com/example/demo/images/levelonebg.gif";
+	protected static final String BACKGROUND_IMAGE_NAME = "/com/example/demo/images/levelonebg.gif";
 	private static final String NEXT_LEVEL = "com.example.demo.levels.LevelTwo";
 	private static final int TOTAL_ENEMIES = 5;
 	private static final int KILLS_TO_ADVANCE = 10;
-	private static final double ENEMY_SPAWN_PROBABILITY = .20;
+	protected static final double ENEMY_SPAWN_PROBABILITY = .20;
 	private static final int PLAYER_INITIAL_HEALTH = 5;
 
 	public LevelOne(double screenHeight, double screenWidth, Controller controller) {
@@ -86,7 +86,7 @@ public class LevelOne extends LevelParent {
 	}
 
 
-	private boolean userHasReachedKillTarget() {
+	protected boolean userHasReachedKillTarget() {
 		return getUser().getNumberOfKills() >= KILLS_TO_ADVANCE;
 	}
 
