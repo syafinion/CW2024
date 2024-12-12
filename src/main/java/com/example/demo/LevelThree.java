@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import com.example.demo.controller.Controller;
 import javafx.animation.FadeTransition;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
@@ -14,10 +15,11 @@ public class LevelThree extends LevelParent {
     private Boss boss;
     private LevelViewLevelTwo levelView;
 
-    public LevelThree(double screenHeight, double screenWidth) {
-        super(BACKGROUND_IMAGE_NAME, screenHeight, screenWidth, PLAYER_INITIAL_HEALTH);
+    public LevelThree(double screenHeight, double screenWidth, Controller controller) {
+        super(BACKGROUND_IMAGE_NAME, screenHeight, screenWidth, PLAYER_INITIAL_HEALTH, controller); // Pass the controller
         boss = new Boss(this);
     }
+
 
     @Override
     public Scene initializeScene() {

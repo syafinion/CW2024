@@ -131,11 +131,16 @@ public class LevelView {
 
 
 
-	public void showWinImage() {
-		root.getChildren().add(winImage);
-		winImage.showWinImage();
-	}
-	
+//	public void showWinImage() {
+//		// Check if the WinImage is already added to the root
+//		if (!root.getChildren().contains(winImage)) {
+//			root.getChildren().add(winImage);
+//		}
+//		winImage.showWinImage();
+//	}
+
+
+
 	public void showGameOverImage() {
 		root.getChildren().add(gameOverImage);
 	}

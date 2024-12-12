@@ -3,6 +3,7 @@ package com.example.demo;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.example.demo.controller.Controller;
 import com.example.demo.controller.PauseMenu;
 import javafx.animation.*;
 import javafx.geometry.Pos;
@@ -46,8 +47,9 @@ public abstract class LevelParent extends Observable {
 	private PauseMenu pauseMenu;
 
 	private boolean transitioningToNextLevel = false;
+	private final Controller controller;
 
-	public LevelParent(String backgroundImageName, double screenHeight, double screenWidth, int playerInitialHealth) {
+	public LevelParent(String backgroundImageName, double screenHeight, double screenWidth, int playerInitialHealth, Controller controller) {
 		this.root = new Group();
 		this.scene = new Scene(root, screenWidth, screenHeight);
 		this.timeline = new Timeline();
@@ -56,13 +58,13 @@ public abstract class LevelParent extends Observable {
 		this.enemyUnits = new ArrayList<>();
 		this.userProjectiles = new ArrayList<>();
 		this.enemyProjectiles = new ArrayList<>();
-
 		this.background = new ImageView(new Image(getClass().getResource(backgroundImageName).toExternalForm()));
 		this.screenHeight = screenHeight;
 		this.screenWidth = screenWidth;
 		this.enemyMaximumYPosition = screenHeight - SCREEN_HEIGHT_ADJUSTMENT;
 		this.levelView = instantiateLevelView();
 		this.currentNumberOfEnemies = 0;
+		this.controller = controller; // Initialize controller
 		initializeTimeline();
 		friendlyUnits.add(user);
 	}
@@ -526,9 +528,10 @@ public abstract class LevelParent extends Observable {
 	}
 
 	protected void winGame() {
-		timeline.stop();
-		levelView.showWinImage();
+		timeline.stop(); // Stop the game timeline
+		showWinMenu(); // Display the win menu
 	}
+
 
 	protected void loseGame() {
 		showGameOverMenu();
@@ -620,6 +623,50 @@ public abstract class LevelParent extends Observable {
 		root.getChildren().add(gameOverPane);
 	}
 
+	protected void showWinMenu() {
+		timeline.stop(); // Stop game logic
+
+		// Create a pane for the win menu
+		Pane winPane = new Pane();
+		winPane.setPrefSize(screenWidth, screenHeight);
+
+		// Add a semi-transparent black background
+		Rectangle bg = new Rectangle(screenWidth, screenHeight);
+		bg.setFill(Color.BLACK);
+		bg.setOpacity(0.7);
+		winPane.getChildren().add(bg);
+
+		// Add the "You Win" image
+		WinImage winImage = new WinImage(screenWidth, screenHeight);
+		winPane.getChildren().add(winImage);
+
+		// Retro font for buttons
+		Font retroFont = Font.loadFont(getClass().getResourceAsStream("/com/example/demo/images/PressStart2P-Regular.ttf"), 20);
+
+		// Create Restart and Main Menu buttons
+		VBox menuBox = new VBox(20);
+		menuBox.setAlignment(Pos.CENTER);
+
+		// Restart button
+		StackPane restartButton = createButton("RESTART", retroFont, this::restartToLevelOne);
+		// Main Menu button
+		StackPane mainMenuButton = createButton("MAIN MENU", retroFont, this::goToMainMenu);
+
+		menuBox.getChildren().addAll(restartButton, mainMenuButton);
+
+		// Center the menuBox
+		menuBox.setLayoutX((screenWidth - 220) / 2); // Center horizontally
+		menuBox.setLayoutY(screenHeight / 2 + 40); // Position below the win image
+
+		winPane.getChildren().add(menuBox);
+
+		// Add winPane to the root
+		root.getChildren().add(winPane);
+	}
+
+
+
+
 
 
 	private StackPane createButton(String name, Font font, Runnable action) {
@@ -651,5 +698,13 @@ public abstract class LevelParent extends Observable {
 		return button;
 	}
 
+	protected void restartToLevelOne() {
+		timeline.stop(); // Stop the game timeline
+		try {
+			controller.goToLevel("com.example.demo.LevelOne"); // Restart to Level 1
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 }

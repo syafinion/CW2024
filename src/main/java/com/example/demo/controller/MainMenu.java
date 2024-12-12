@@ -28,6 +28,9 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+
 public class MainMenu {
     private final Controller controller;
     private static final String IMAGE_NAME = "/com/example/demo/images/mainmenubg.gif";
@@ -135,13 +138,28 @@ public class MainMenu {
         bg.setFill(Color.BLACK);
         bg.setOpacity(0.8);
 
+        // Load custom font
+        Font pressStartFont;
+        try {
+            pressStartFont = Font.loadFont(
+                    getClass().getResourceAsStream("/com/example/demo/images/PressStart2P-Regular.ttf"),
+                    20
+            );
+        } catch (Exception e) {
+            pressStartFont = Font.font("Arial", FontWeight.BOLD, 20); // Fallback font
+            e.printStackTrace();
+        }
+
         // Settings title
         Text settingsTitle = new Text("SETTINGS");
         settingsTitle.setFill(Color.WHITE);
-        settingsTitle.setFont(Font.font("Times New Roman", FontWeight.SEMI_BOLD, 40));
+        settingsTitle.setFont(Font.loadFont(
+                getClass().getResourceAsStream("/com/example/demo/images/PressStart2P-Regular.ttf"),
+                30
+        ));
 
         // Center layout
-        VBox centerLayout = new VBox(30); // Increased spacing between elements
+        VBox centerLayout = new VBox(20); // Adjust spacing between elements
         centerLayout.setAlignment(Pos.TOP_CENTER);
         centerLayout.setPrefSize(700, 450);
 
@@ -165,7 +183,7 @@ public class MainMenu {
         // Volume slider with label
         Text volumeLabel = new Text("Volume: 50%");
         volumeLabel.setFill(Color.WHITE);
-        volumeLabel.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+        volumeLabel.setFont(pressStartFont);
 
         javafx.scene.control.Slider volumeSlider = new javafx.scene.control.Slider(0, 1, 0.5);
         volumeSlider.setPrefWidth(200);
@@ -175,7 +193,6 @@ public class MainMenu {
             volumeLabel.setText(String.format("Volume: %.0f%%", percentage));
             controller.setVolume(newValue.doubleValue()); // Update global volume
         });
-
 
         VBox volumeControl = new VBox(10, volumeLabel, volumeSlider);
         volumeControl.setAlignment(Pos.CENTER);
@@ -201,6 +218,9 @@ public class MainMenu {
         settingsPane.setVisible(false);
         return settingsPane;
     }
+
+
+
 
 
 
@@ -384,19 +404,38 @@ public class MainMenu {
     private static class MenuBox extends VBox {
         public MenuBox(MenuItem... items) {
             setAlignment(Pos.CENTER);
-            getChildren().add(createSeparator());
+
+            // Calculate maximum width of all MenuItems
+            double maxWidth = 0;
             for (MenuItem item : items) {
+                maxWidth = Math.max(maxWidth, item.getMenuItemWidth());
                 getChildren().addAll(item, createSeparator());
             }
+
+            // Apply width with padding
+            double finalWidth = maxWidth + 50; // Add 50 units of padding
+            setPrefWidth(finalWidth);
+            setMaxWidth(finalWidth); // Ensure max width is also applied
         }
 
         private Line createSeparator() {
             Line sep = new Line();
-            sep.setEndX(210);
+            sep.setEndX(210); // Adjust this value if needed
             sep.setStroke(Color.DARKGREY);
             return sep;
         }
+
+        @Override
+        protected void layoutChildren() {
+            super.layoutChildren();
+            // Reapply width dynamically
+            setPrefWidth(getMaxWidth());
+        }
     }
+
+
+
+
 
 
 
@@ -413,6 +452,10 @@ public class MainMenu {
             Text text = new Text(name);
             text.setFill(Color.YELLOW);
             text.setFont(Font.loadFont(getClass().getResourceAsStream("/com/example/demo/images/PressStart2P-Regular.ttf"), 20));
+
+            // Dynamically update the rectangle width based on text
+            double textWidth = text.getLayoutBounds().getWidth();
+            bg.setWidth(Math.max(220, textWidth + 30)); // Adjust width with padding
 
             setAlignment(Pos.CENTER);
             getChildren().addAll(bg, text);
@@ -443,7 +486,14 @@ public class MainMenu {
                 action.run(); // Perform the action
             });
         }
+
+        // Custom method to return the width of the MenuItem
+        public double getMenuItemWidth() {
+            return bg.getWidth();
+        }
     }
+
+
 
 
 

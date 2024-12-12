@@ -69,28 +69,18 @@ public class Controller implements Observer {
 	}
 
 	private void playBackgroundMusic() {
-		String firstMusicPath = new File("src/main/resources/com/example/demo/images/boom-8-bit-36004.mp3").toURI().toString();
 		String loopMusicPath = new File("src/main/resources/com/example/demo/images/8-bit-loop-189494.mp3").toURI().toString();
-
-		Media firstMedia = new Media(firstMusicPath);
-		MediaPlayer firstMediaPlayer = new MediaPlayer(firstMedia);
 
 		Media loopMedia = new Media(loopMusicPath);
 		MediaPlayer loopMediaPlayer = new MediaPlayer(loopMedia);
 
 		loopMediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+		loopMediaPlayer.setVolume(currentVolume); // Apply global volume
 
-		firstMediaPlayer.setOnEndOfMedia(() -> {
-			firstMediaPlayer.dispose();
-			loopMediaPlayer.setVolume(currentVolume); // Apply global volume
-			loopMediaPlayer.play();
-			mediaPlayer = loopMediaPlayer;
-		});
-
-		mediaPlayer = firstMediaPlayer;
-		mediaPlayer.setVolume(currentVolume); // Apply global volume
+		mediaPlayer = loopMediaPlayer;
 		mediaPlayer.play();
 	}
+
 
 
 
@@ -129,7 +119,7 @@ public class Controller implements Observer {
 	}
 
 
-	private void goToLevel(String className) throws ClassNotFoundException, NoSuchMethodException, SecurityException,
+	public void goToLevel(String className) throws ClassNotFoundException, NoSuchMethodException, SecurityException,
 			InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		if (className.equals("MAIN_MENU")) {
 			showMainMenu();
@@ -139,8 +129,8 @@ public class Controller implements Observer {
 			currentLevel.stop();
 		}
 		Class<?> myClass = Class.forName(className);
-		var constructor = myClass.getConstructor(double.class, double.class);
-		currentLevel = (LevelParent) constructor.newInstance(stage.getHeight(), stage.getWidth());
+		var constructor = myClass.getConstructor(double.class, double.class, Controller.class);
+		currentLevel = (LevelParent) constructor.newInstance(stage.getHeight(), stage.getWidth(), this);
 		currentLevel.addObserver((observable, arg) -> {
 			try {
 				goToLevel((String) arg);
