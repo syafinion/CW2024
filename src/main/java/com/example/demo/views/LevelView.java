@@ -131,16 +131,6 @@ public class LevelView {
 
 
 
-//	public void showWinImage() {
-//		// Check if the WinImage is already added to the root
-//		if (!root.getChildren().contains(winImage)) {
-//			root.getChildren().add(winImage);
-//		}
-//		winImage.showWinImage();
-//	}
-
-
-
 	public void showGameOverImage() {
 		root.getChildren().add(gameOverImage);
 	}
@@ -148,10 +138,11 @@ public class LevelView {
 	public void removeHearts(int heartsRemaining) {
 		int currentNumberOfHearts = heartDisplay.getContainer().getChildren().size();
 		System.out.println("Current hearts: " + currentNumberOfHearts + ", Hearts remaining: " + heartsRemaining);
-		for (int i = 0; i < currentNumberOfHearts - heartsRemaining; i++) {
+		for (int i = currentNumberOfHearts; i > heartsRemaining; i--) {
 			heartDisplay.removeHeart();
 		}
 	}
+
 
 
 }

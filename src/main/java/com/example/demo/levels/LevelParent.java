@@ -9,10 +9,7 @@ import com.example.demo.actors.FighterPlane;
 import com.example.demo.actors.UserPlane;
 import com.example.demo.controller.Controller;
 import com.example.demo.controller.PauseMenu;
-import com.example.demo.views.GameOverImage;
-import com.example.demo.views.LevelView;
-import com.example.demo.views.LevelViewLevelTwo;
-import com.example.demo.views.WinImage;
+import com.example.demo.views.*;
 import javafx.animation.*;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -57,6 +54,8 @@ public abstract class LevelParent extends Observable {
 	private boolean transitioningToNextLevel = false;
 	private final Controller controller;
 
+	private LevelUIManager levelUIManager;
+
 	public LevelParent(String backgroundImageName, double screenHeight, double screenWidth, int playerInitialHealth, Controller controller) {
 		this.root = new Group();
 		this.scene = new Scene(root, screenWidth, screenHeight);
@@ -73,6 +72,7 @@ public abstract class LevelParent extends Observable {
 		this.levelView = instantiateLevelView();
 		this.currentNumberOfEnemies = 0;
 		this.controller = controller; // Initialize controller
+		this.levelUIManager = new LevelUIManager(screenWidth, screenHeight, root, controller);
 		initializeTimeline();
 		friendlyUnits.add(user);
 	}
@@ -85,11 +85,35 @@ public abstract class LevelParent extends Observable {
 
 	protected abstract LevelView instantiateLevelView();
 
+	protected void updateLevelView() {
+		levelUIManager.updateLevelView(user, levelView, boss);
+	}
+	protected void showGameOverMenu() {
+		levelUIManager.showGameOverMenu(this::restartLevel, this::goToMainMenu);
+	}
+
+	protected void showWinMenu() {
+		levelUIManager.showWinMenu(this::restartToLevelOne, this::goToMainMenu);
+	}
+
+	protected void loseGame() {
+		timeline.stop(); // Stop game logic
+		showGameOverMenu(); // Display the game over menu
+	}
+
+
+	private void startCountdown(Runnable onComplete) {
+		String levelNumber = getClass().getSimpleName().replace("Level", "");
+		levelUIManager.startCountdown(onComplete, levelNumber);
+	}
 
 	public Scene initializeScene() {
 		initializeBackground();
 		initializeFriendlyUnits();
 		levelView.showHeartDisplay();
+
+		// Start the countdown before enabling gameplay
+		startCountdown(() -> timeline.play());
 
 		// Load a retro font
 		Font retroFont = Font.loadFont(getClass().getResourceAsStream("/com/example/demo/images/PressStart2P-Regular.ttf"), 20);
@@ -102,10 +126,10 @@ public abstract class LevelParent extends Observable {
 		levelText.setFont(retroFont); // Apply retro font
 		levelText.setFill(Color.WHITE);
 
-		// Calculate text width and center it
+		// Position the level text below the countdown
 		double textWidth = levelText.getLayoutBounds().getWidth();
 		levelText.setLayoutX((getScreenWidth() - textWidth) / 2);
-		levelText.setLayoutY(getScreenHeight() / 2);
+		levelText.setLayoutY(getScreenHeight() / 2 + 50); // Positioned 50 pixels below the countdown
 
 		root.getChildren().add(levelText);
 
@@ -122,9 +146,9 @@ public abstract class LevelParent extends Observable {
 		return scene;
 	}
 
+
 	public void startGame() {
 		background.requestFocus();
-		startCountdown(() -> timeline.play());
 	}
 
 	public void goToNextLevel(String levelName) {
@@ -169,7 +193,9 @@ public abstract class LevelParent extends Observable {
 		timeline.setCycleCount(Timeline.INDEFINITE);
 		KeyFrame gameLoop = new KeyFrame(Duration.millis(MILLISECOND_DELAY), e -> updateScene());
 		timeline.getKeyFrames().add(gameLoop);
+		timeline.pause(); // Ensure the timeline is paused until the countdown ends
 	}
+
 
 	private void initializeBackground() {
 		background.setFocusTraversable(true);
@@ -219,60 +245,6 @@ public abstract class LevelParent extends Observable {
 
 		root.getChildren().add(pauseMenu.getRoot());
 	}
-
-	private void startCountdown(Runnable onComplete) {
-		// Load the retro font
-		Font retroFont = Font.loadFont(getClass().getResourceAsStream("/com/example/demo/images/PressStart2P-Regular.ttf"), 50);
-
-		// Dynamically detect the current level number from the class name
-		String levelNumber = getClass().getSimpleName().replace("Level", "");
-
-		Text countdownText = new Text();
-		countdownText.setFont(retroFont); // Apply retro font
-		countdownText.setFill(Color.WHITE);
-
-		// Calculate text width and center it dynamically
-		countdownText.setText("3");
-		double textWidth = countdownText.getLayoutBounds().getWidth();
-		countdownText.setLayoutX((getScreenWidth() - textWidth) / 2);
-		countdownText.setLayoutY(getScreenHeight() / 2);
-
-		root.getChildren().add(countdownText);
-
-		Timeline countdownTimeline = new Timeline(
-				new KeyFrame(Duration.seconds(0), e -> {
-					countdownText.setText("3");
-					double width = countdownText.getLayoutBounds().getWidth();
-					countdownText.setLayoutX((getScreenWidth() - width) / 2);
-				}),
-				new KeyFrame(Duration.seconds(1), e -> {
-					countdownText.setText("2");
-					double width = countdownText.getLayoutBounds().getWidth();
-					countdownText.setLayoutX((getScreenWidth() - width) / 2);
-				}),
-				new KeyFrame(Duration.seconds(2), e -> {
-					countdownText.setText("1");
-					double width = countdownText.getLayoutBounds().getWidth();
-					countdownText.setLayoutX((getScreenWidth() - width) / 2);
-				}),
-				new KeyFrame(Duration.seconds(3), e -> {
-					// Display the correct level dynamically
-					countdownText.setText("Level " + levelNumber);
-					double width = countdownText.getLayoutBounds().getWidth();
-					countdownText.setLayoutX((getScreenWidth() - width) / 2);
-				}),
-				new KeyFrame(Duration.seconds(4), e -> {
-					root.getChildren().remove(countdownText);
-					onComplete.run(); // Start game logic here
-				})
-		);
-
-		countdownTimeline.play();
-	}
-
-
-
-
 
 	public void resumeGame() {
 		isPaused = false;
@@ -471,22 +443,6 @@ public abstract class LevelParent extends Observable {
 		}
 	}
 
-
-	protected void updateLevelView() {
-		levelView.removeHearts(user.getHealth());
-		if (levelView instanceof LevelViewLevelTwo && boss != null) { // Null check for boss
-			LevelViewLevelTwo levelTwoView = (LevelViewLevelTwo) levelView;
-			levelTwoView.updateBossHealthBar(boss.getHealth(), 100);
-			levelTwoView.updateShieldPosition(boss.getTranslateX(), boss.getTranslateY());
-			if (boss.isShielded()) {
-				levelTwoView.showShield();
-			} else {
-				levelTwoView.hideShield();
-			}
-		}
-		System.out.println("LevelView updated: Boss health and shield status.");
-	}
-
 	private void updateKillCount() {
 		List<ActiveActorDestructible> destroyedEnemies = enemyUnits.stream()
 				.filter(enemy -> enemy.isDestroyed() && enemy.isVisibleOnScreen(screenWidth, screenHeight))
@@ -509,13 +465,8 @@ public abstract class LevelParent extends Observable {
 
 	protected void winGame() {
 		timeline.stop(); // Stop the game timeline
-		showWinMenu(); // Display the win menu
 	}
 
-
-	protected void loseGame() {
-		showGameOverMenu();
-	}
 
 
 	protected UserPlane getUser() {
@@ -563,115 +514,6 @@ public abstract class LevelParent extends Observable {
 		currentNumberOfEnemies = enemyUnits.size();
 	}
 
-	protected void showGameOverMenu() {
-		timeline.stop(); // Stop game logic
-
-		// Create a pane for the game-over menu
-		Pane gameOverPane = new Pane();
-		gameOverPane.setPrefSize(screenWidth, screenHeight);
-
-		// Add a semi-transparent black background
-		Rectangle bg = new Rectangle(screenWidth, screenHeight);
-		bg.setFill(Color.BLACK);
-		bg.setOpacity(0.7);
-		gameOverPane.getChildren().add(bg);
-
-		// Add the Game Over image
-		GameOverImage gameOverImage = new GameOverImage(screenWidth, screenHeight);
-		gameOverPane.getChildren().add(gameOverImage);
-
-		// Retro font for buttons
-		Font retroFont = Font.loadFont(getClass().getResourceAsStream("/com/example/demo/images/PressStart2P-Regular.ttf"), 20);
-
-		// Create Restart and Main Menu buttons
-		VBox menuBox = new VBox(20);
-		menuBox.setAlignment(Pos.CENTER);
-
-		// Restart button
-		StackPane restartButton = createButton("RESTART", retroFont, this::restartLevel);
-		// Main Menu button
-		StackPane mainMenuButton = createButton("MAIN MENU", retroFont, this::goToMainMenu);
-
-		menuBox.getChildren().addAll(restartButton, mainMenuButton);
-		menuBox.setLayoutX((screenWidth - 220) / 2); // Center horizontally
-		menuBox.setLayoutY(screenHeight / 2 + 40); // Position below the game-over image
-
-		gameOverPane.getChildren().add(menuBox);
-
-		// Add game-over menu to the root
-		root.getChildren().add(gameOverPane);
-	}
-
-	protected void showWinMenu() {
-		timeline.stop(); // Stop game logic
-
-		// Create a pane for the win menu
-		Pane winPane = new Pane();
-		winPane.setPrefSize(screenWidth, screenHeight);
-
-		// Add a semi-transparent black background
-		Rectangle bg = new Rectangle(screenWidth, screenHeight);
-		bg.setFill(Color.BLACK);
-		bg.setOpacity(0.7);
-		winPane.getChildren().add(bg);
-
-		// Add the "You Win" image
-		WinImage winImage = new WinImage(screenWidth, screenHeight);
-		winPane.getChildren().add(winImage);
-
-		// Retro font for buttons
-		Font retroFont = Font.loadFont(getClass().getResourceAsStream("/com/example/demo/images/PressStart2P-Regular.ttf"), 20);
-
-		// Create Restart and Main Menu buttons
-		VBox menuBox = new VBox(20);
-		menuBox.setAlignment(Pos.CENTER);
-
-		// Restart button
-		StackPane restartButton = createButton("RESTART", retroFont, this::restartToLevelOne);
-		// Main Menu button
-		StackPane mainMenuButton = createButton("MAIN MENU", retroFont, this::goToMainMenu);
-
-		menuBox.getChildren().addAll(restartButton, mainMenuButton);
-
-		// Center the menuBox
-		menuBox.setLayoutX((screenWidth - 220) / 2); // Center horizontally
-		menuBox.setLayoutY(screenHeight / 2 + 40); // Position below the win image
-
-		winPane.getChildren().add(menuBox);
-
-		// Add winPane to the root
-		root.getChildren().add(winPane);
-	}
-
-
-	private StackPane createButton(String name, Font font, Runnable action) {
-		StackPane button = new StackPane();
-		button.setPrefSize(220, 40);
-
-		Rectangle bg = new Rectangle(220, 40);
-		bg.setFill(Color.BLACK);
-		bg.setStroke(Color.YELLOW);
-		bg.setStrokeWidth(2);
-
-		Text text = new Text(name);
-		text.setFill(Color.YELLOW);
-		text.setFont(font);
-
-		button.getChildren().addAll(bg, text);
-
-		button.setOnMouseEntered(e -> {
-			bg.setFill(Color.DARKGRAY);
-			text.setFill(Color.WHITE);
-		});
-
-		button.setOnMouseExited(e -> {
-			bg.setFill(Color.BLACK);
-			text.setFill(Color.YELLOW);
-		});
-
-		button.setOnMouseClicked(e -> action.run());
-		return button;
-	}
 
 	protected void restartToLevelOne() {
 		timeline.stop(); // Stop the game timeline
