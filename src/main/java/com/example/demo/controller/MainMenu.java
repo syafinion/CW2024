@@ -278,7 +278,7 @@ public class MainMenu {
     }
 
 
-    private void setPendingResolution(int width, int height, boolean fullscreen) {
+    protected void setPendingResolution(int width, int height, boolean fullscreen) {
         pendingWidth = width;
         pendingHeight = height;
         pendingFullscreen = fullscreen;
@@ -372,7 +372,7 @@ public class MainMenu {
 
 
 
-    private void toggleFullscreen() {
+    protected void toggleFullscreen() {
         Stage stage = controller.getStage();
         stage.setFullScreen(!stage.isFullScreen());
         System.out.println("Fullscreen mode: " + stage.isFullScreen());

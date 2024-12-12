@@ -33,7 +33,7 @@ public class Boss extends FighterPlane {
 	private int framesWithShieldActivated;
 	private int shieldCooldownFrames;
 	private static final int SHIELD_MAX_HEALTH = 50; // Max health for the shield
-	private int shieldHealth; // Current shield health
+	protected int shieldHealth; // Current shield health
 	private boolean shieldDestroyed = false; // Tracks whether the shield is permanently destroyed
 
 	private LevelParent level;
@@ -125,7 +125,7 @@ public class Boss extends FighterPlane {
 		Collections.shuffle(movePattern);
 	}
 
-	private void updateShield() {
+	protected void updateShield() {
 		if (shieldDestroyed) {
 			isShielded = false; // Ensure shield remains inactive
 			System.out.println("Shield is permanently destroyed and cannot be reactivated.");
@@ -194,7 +194,7 @@ public class Boss extends FighterPlane {
 		return framesWithShieldActivated >= 400; // You can adjust this value as needed
 	}
 
-	private void activateShield() {
+	protected void activateShield() {
 		if (!isShielded) {
 			isShielded = true;
 			if (shieldHealth <= 0) { // Only set shield health if it hasn't been initialized or was fully depleted

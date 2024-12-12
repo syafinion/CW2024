@@ -11,11 +11,11 @@ public class LevelViewLevelTwo extends LevelView {
 	// Updated constants for debugging purposes
 	private static final int HEALTH_BAR_WIDTH = 300; // Standard width
 	private static final int HEALTH_BAR_HEIGHT = 20; // Standard height
-	private final Rectangle shieldHealthBar;
+	protected final Rectangle shieldHealthBar;
 	private final Rectangle shieldHealthBarBorder;
 	private final Group root;
-	private final ShieldImage shieldImage;
-	private final Rectangle healthBar;
+	protected final ShieldImage shieldImage;
+	protected final Rectangle healthBar;
 	private final Rectangle healthBarBorder;
 
 	public LevelViewLevelTwo(Group root, int heartsToDisplay) {
