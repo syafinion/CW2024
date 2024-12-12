@@ -1,8 +1,8 @@
 package com.example.demo.controller;
 
-import com.example.demo.LevelParent;
-import com.example.demo.LevelThree;
-import com.example.demo.LevelView;
+import com.example.demo.levels.LevelParent;
+import com.example.demo.levels.LevelThree;
+import com.example.demo.views.LevelView;
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
 import javafx.geometry.Rectangle2D;
@@ -27,9 +27,6 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-
-import java.io.FileInputStream;
-import java.io.IOException;
 
 public class MainMenu {
     private final Controller controller;

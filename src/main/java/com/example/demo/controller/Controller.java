@@ -1,17 +1,15 @@
 package com.example.demo.controller;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Observable;
 import java.util.Observer;
 
-import com.example.demo.LevelView;
+import com.example.demo.views.LevelView;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.Pane;
-import com.example.demo.LevelParent;
-import javafx.animation.AnimationTimer;
+import com.example.demo.levels.LevelParent;
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;
 import javafx.scene.media.Media;
@@ -21,7 +19,7 @@ import javafx.stage.Stage;
 import java.io.File;
 public class Controller implements Observer {
 
-	private static final String LEVEL_ONE_CLASS_NAME = "com.example.demo.LevelOne";
+	private static final String LEVEL_ONE_CLASS_NAME = "com.example.demo.levels.LevelOne";
 	private final Stage stage;
 	private MediaPlayer mediaPlayer;
 	private LevelParent currentLevel;
