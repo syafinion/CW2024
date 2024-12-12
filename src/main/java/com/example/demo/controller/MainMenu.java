@@ -143,7 +143,7 @@ public class MainMenu {
         settingsPane.setPrefSize(700, 500); // Increased height to accommodate buttons
 
         // Background rectangle
-        Rectangle bg = new Rectangle(700, 600); // Match the updated size
+        Rectangle bg = new Rectangle(700, 700); // Match the updated size
         bg.setFill(Color.BLACK);
         bg.setOpacity(0.8);
 
@@ -190,7 +190,7 @@ public class MainMenu {
         );
 
         // Volume slider with label
-        Text volumeLabel = new Text("Volume: 50%");
+        Text volumeLabel = new Text("Music Volume: 50%");
         volumeLabel.setFill(Color.WHITE);
         volumeLabel.setFont(pressStartFont);
 
@@ -199,7 +199,7 @@ public class MainMenu {
         volumeSlider.setValue(0.5);
         volumeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
             double percentage = newValue.doubleValue() * 100;
-            volumeLabel.setText(String.format("Volume: %.0f%%", percentage));
+            volumeLabel.setText(String.format("Music Volume: %.0f%%", percentage));
             controller.setVolume(newValue.doubleValue()); // Update global volume
         });
 
@@ -231,9 +231,6 @@ public class MainMenu {
             }
         });
 
-
-
-
         VBox gunshotVolumeControl = new VBox(10, gunshotVolumeLabel, gunshotVolumeSlider);
         gunshotVolumeControl.setAlignment(Pos.CENTER);
 
@@ -247,8 +244,7 @@ public class MainMenu {
         buttonsLayout.getChildren().addAll(applyButton, cancelButton);
 
         // Adding all elements to center layout
-        centerLayout.getChildren().addAll(gunshotVolumeControl, resolutionMenu, volumeControl, buttonsLayout);
-
+        centerLayout.getChildren().addAll(volumeControl, gunshotVolumeControl, resolutionMenu, buttonsLayout);
 
         // Position title and center layout
         settingsTitle.setLayoutX(settingsPane.getPrefWidth() / 2 - settingsTitle.getLayoutBounds().getWidth() / 2);
@@ -431,10 +427,6 @@ public class MainMenu {
     }
 
 
-
-
-
-
     private static class MenuBox extends VBox {
         public MenuBox(MenuItem... items) {
             setAlignment(Pos.CENTER);
@@ -517,10 +509,5 @@ public class MainMenu {
             return FIXED_WIDTH;
         }
     }
-
-
-
-
-
 
 }

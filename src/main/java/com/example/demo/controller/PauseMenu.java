@@ -66,13 +66,6 @@ public class PauseMenu {
             text.setFill(Color.YELLOW); // Bright retro color
             text.setFont(Font.loadFont(getClass().getResourceAsStream("/com/example/demo/images/PressStart2P-Regular.ttf"), 40)); // Retro font
 
-            // Add glow effect
-            DropShadow glow = new DropShadow();
-            glow.setColor(Color.YELLOW);
-            glow.setRadius(15);
-            glow.setSpread(0.7);
-            text.setEffect(glow);
-
             setAlignment(Pos.CENTER);
             getChildren().addAll(bg, text);
         }
