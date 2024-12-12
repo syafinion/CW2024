@@ -4,8 +4,6 @@ public class BossProjectile extends Projectile {
 
 	private static final String IMAGE_NAME = "fireball.png";
 	private static final int IMAGE_HEIGHT = 75;
-	private static final int HORIZONTAL_VELOCITY = -15;
-	private static final int INITIAL_X_POSITION = 950;
 	private static final double SPEED = 15.0; // Projectile speed
 	private static final double HOMING_DISTANCE = 500; // Max distance for homing behavior
 	private static final int MAX_LIFESPAN = 300; // Number of frames before disappearing

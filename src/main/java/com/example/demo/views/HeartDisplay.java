@@ -4,6 +4,10 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 
+
+/**
+ * Displays the health of the player using heart images.
+ */
 public class HeartDisplay {
 	
 	private static final String HEART_IMAGE_NAME = "/com/example/demo/images/heart.png";

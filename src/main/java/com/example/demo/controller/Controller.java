@@ -97,8 +97,6 @@ public class Controller implements Observer {
 	}
 
 
-
-
 	public void stopMusic() {
 		if (mediaPlayer != null) {
 			mediaPlayer.stop();
