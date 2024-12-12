@@ -2,6 +2,7 @@ package com.example.demo.actors;
 
 import com.example.demo.levels.LevelParent;
 import com.example.demo.levels.LevelThree;
+import com.example.demo.views.LevelViewLevelTwo;
 
 import java.util.*;
 
@@ -29,7 +30,10 @@ public class Boss extends FighterPlane {
 	private int indexOfCurrentMove;
 	private int framesWithShieldActivated;
 	private int shieldCooldownFrames;
-//	private LevelTwo levelTwo;
+	private static final int SHIELD_MAX_HEALTH = 50; // Max health for the shield
+	private int shieldHealth; // Current shield health
+
+
 	private LevelParent level;
 	public Boss(LevelParent level){
 		super(IMAGE_NAME, IMAGE_HEIGHT, INITIAL_X_POSITION, INITIAL_Y_POSITION, HEALTH);
@@ -74,9 +78,6 @@ public class Boss extends FighterPlane {
 	}
 
 
-
-
-
 	@Override
 	public ActiveActorDestructible fireProjectile() {
 		if (bossFiresInCurrentFrame()) {
@@ -88,11 +89,25 @@ public class Boss extends FighterPlane {
 		return null;
 	}
 
+	private void updateShieldHealthBar() {
+		if (level.getLevelView() instanceof LevelViewLevelTwo) {
+			LevelViewLevelTwo levelViewLevelTwo = (LevelViewLevelTwo) level.getLevelView();
+			levelViewLevelTwo.updateShieldHealthBar(shieldHealth, SHIELD_MAX_HEALTH);
+		}
+	}
+
+
 
 	@Override
 	public void takeDamage() {
-		if (!isShielded) {
-			super.takeDamage();
+		if (isShielded) {
+			shieldHealth--;
+			updateShieldHealthBar(); // Update the shield health bar
+			if (shieldHealth <= 0) {
+				deactivateShield(); // Deactivate shield when health is 0
+			}
+		} else {
+			super.takeDamage(); // Regular damage when not shielded
 		}
 	}
 
@@ -148,26 +163,16 @@ public class Boss extends FighterPlane {
 		return getLayoutY() + getTranslateY() + PROJECTILE_Y_POSITION_OFFSET;
 	}
 
-//	private boolean shieldShouldBeActivated() {
-//		boolean shouldActivate = Math.random() < BOSS_SHIELD_PROBABILITY && getHealth() <= 50;
-//		System.out.println("Shield activation condition met: " + shouldActivate);
-//		return shouldActivate;
-//	}
 
 	private boolean shieldShouldBeActivated() {
 		// Activate the shield when:
 		// 1. The boss's health is below 75%, AND
 		// 2. A random chance based on the configured BOSS_SHIELD_PROBABILITY, AND
 		// 3. No cooldown is in effect.
-		boolean shouldActivate = getHealth() <= 75 && Math.random() < BOSS_SHIELD_PROBABILITY && shieldCooldownFrames == 0;
+		boolean shouldActivate = getHealth() <= 99 && Math.random() < BOSS_SHIELD_PROBABILITY && shieldCooldownFrames == 0;
 		System.out.println("Shield activation condition met: " + shouldActivate);
 		return shouldActivate;
 	}
-
-	// Testing
-//private boolean shieldShouldBeActivated() {
-//	return getHealth() <= 99; // Trigger shield when health is 50 or below
-//}
 
 	private boolean shieldExhausted() {
 		// Deactivate the shield after it has been active for a fixed duration of 400 frames.
@@ -175,9 +180,14 @@ public class Boss extends FighterPlane {
 	}
 
 	private void activateShield() {
-		isShielded = true;
-		framesWithShieldActivated = 0; // Reset the activation frame count
-		System.out.println("Shield activated!");
+		if (!isShielded) {
+			isShielded = true;
+			if (shieldHealth <= 0) { // Only set shield health if it hasn't been initialized or was fully depleted
+				shieldHealth = SHIELD_MAX_HEALTH;
+			}
+			framesWithShieldActivated = 0; // Reset the activation frame count
+			System.out.println("Shield activated with health: " + shieldHealth);
+		}
 	}
 
 	private void deactivateShield() {

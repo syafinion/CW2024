@@ -11,14 +11,10 @@ import com.example.demo.controller.Controller;
 import com.example.demo.controller.PauseMenu;
 import com.example.demo.views.*;
 import javafx.animation.*;
-import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.image.*;
 import javafx.scene.input.*;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
@@ -282,9 +278,12 @@ public abstract class LevelParent extends Observable {
 
 	private void fireProjectile() {
 		ActiveActorDestructible projectile = user.fireProjectile();
-		root.getChildren().add(projectile);
-		userProjectiles.add(projectile);
+		if (projectile != null) { // Only add projectile if it was created
+			root.getChildren().add(projectile);
+			userProjectiles.add(projectile);
+		}
 	}
+
 
 	private void generateEnemyFire() {
 		enemyUnits.forEach(enemy -> spawnEnemyProjectile(((FighterPlane) enemy).fireProjectile()));
@@ -338,12 +337,6 @@ public abstract class LevelParent extends Observable {
 		removeDestroyedActors(enemyProjectiles);
 	}
 
-//	private void removeDestroyedActors(List<ActiveActorDestructible> actors) {
-//		List<ActiveActorDestructible> destroyedActors = actors.stream().filter(actor -> actor.isDestroyed())
-//				.collect(Collectors.toList());
-//		root.getChildren().removeAll(destroyedActors);
-//		actors.removeAll(destroyedActors);
-//	}
 
 	//TESTING DEBUG
 	// Remove bounding boxes when an actor is destroyed
@@ -366,16 +359,56 @@ public abstract class LevelParent extends Observable {
 		handleCollisions(friendlyUnits, enemyUnits);
 	}
 
-	// OLD CODE
-//	private void handleUserProjectileCollisions() {
-//		handleCollisions(userProjectiles, enemyUnits);
-//	}
 
 	// NEW CODE
+//	private void handleUserProjectileCollisions() {
+//		List<ActiveActorDestructible> enemiesToRemove = new ArrayList<>();
+//		List<ActiveActorDestructible> projectilesToRemove = new ArrayList<>();
+//
+//		for (ActiveActorDestructible enemy : enemyUnits) {
+//			if (!enemy.isVisibleOnScreen(screenWidth, screenHeight)) {
+//				continue; // Skip enemies not visible on the screen
+//			}
+//			for (ActiveActorDestructible projectile : userProjectiles) {
+//				if (enemy.getAdjustedBounds().intersects(projectile.getAdjustedBounds())) {
+//					enemy.takeDamage();
+//					projectile.takeDamage();
+//
+//					if (enemy.isDestroyed()) {
+//						user.incrementKillCount();
+//						System.out.println("Enemy destroyed. Total kills: " + user.getNumberOfKills());
+//						enemiesToRemove.add(enemy);
+//
+//						// Remove bounding box visualization
+//						Rectangle highlight = boundingBoxHighlights.remove(enemy);
+//						if (highlight != null) {
+//							root.getChildren().remove(highlight);
+//						}
+//					}
+//					if (projectile.isDestroyed()) {
+//						projectilesToRemove.add(projectile);
+//					}
+//				}
+//			}
+//		}
+//
+//		// Temporarily remove enemies and projectiles from the game
+//		root.getChildren().removeAll(enemiesToRemove);
+//		root.getChildren().removeAll(projectilesToRemove);
+//		enemyUnits.removeAll(enemiesToRemove);
+//		userProjectiles.removeAll(projectilesToRemove);
+//
+//		// Update the kill count display
+//		levelView.updateKillCountDisplay(user.getNumberOfKills());
+//		System.out.println("Kill count updated in UI: " + user.getNumberOfKills());
+//	}
+
+
 	private void handleUserProjectileCollisions() {
 		List<ActiveActorDestructible> enemiesToRemove = new ArrayList<>();
 		List<ActiveActorDestructible> projectilesToRemove = new ArrayList<>();
 
+		// Handle collisions with enemy units
 		for (ActiveActorDestructible enemy : enemyUnits) {
 			if (!enemy.isVisibleOnScreen(screenWidth, screenHeight)) {
 				continue; // Skip enemies not visible on the screen
@@ -403,11 +436,51 @@ public abstract class LevelParent extends Observable {
 			}
 		}
 
-		// Temporarily remove enemies and projectiles from the game
+		// Handle collisions with the boss
+		if (boss != null) {
+			for (ActiveActorDestructible projectile : userProjectiles) {
+				if (boss.isShielded()) {
+					if (boss.getAdjustedBounds().intersects(projectile.getAdjustedBounds())) {
+						boss.takeDamage(); // Damage the shield
+						projectile.takeDamage(); // Destroy the projectile
+						if (projectile.isDestroyed()) {
+							projectilesToRemove.add(projectile);
+						}
+					}
+				} else if (boss.getAdjustedBounds().intersects(projectile.getAdjustedBounds())) {
+					boss.takeDamage(); // Damage the boss directly
+					projectile.takeDamage(); // Destroy the projectile
+					if (projectile.isDestroyed()) {
+						projectilesToRemove.add(projectile);
+					}
+				}
+			}
+		}
+
+		// Handle collisions between enemy projectiles and the user plane
+		for (ActiveActorDestructible projectile : enemyProjectiles) {
+			if (user.getAdjustedBounds().intersects(projectile.getAdjustedBounds())) {
+				user.takeDamage(); // Damage the user plane
+				projectile.takeDamage(); // Destroy the projectile
+				if (projectile.isDestroyed()) {
+					projectilesToRemove.add(projectile);
+				}
+
+				// Check if the user plane is destroyed
+				if (user.isDestroyed()) {
+					System.out.println("User plane destroyed. Game over.");
+					loseGame();
+					return; // Exit the function early if the game is over
+				}
+			}
+		}
+
+		// Remove destroyed enemies, projectiles, and update the game state
 		root.getChildren().removeAll(enemiesToRemove);
 		root.getChildren().removeAll(projectilesToRemove);
 		enemyUnits.removeAll(enemiesToRemove);
 		userProjectiles.removeAll(projectilesToRemove);
+		enemyProjectiles.removeAll(projectilesToRemove);
 
 		// Update the kill count display
 		levelView.updateKillCountDisplay(user.getNumberOfKills());

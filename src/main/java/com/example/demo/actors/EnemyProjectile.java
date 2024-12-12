@@ -4,7 +4,7 @@ public class EnemyProjectile extends Projectile {
 
 	private static final String IMAGE_NAME = "enemyFire.png";
 	private static final int IMAGE_HEIGHT = 50;
-	private static final double SPEED = 5.0; // Projectile speed
+	private static final double SPEED = 7.0; // Projectile speed
 	private static final int MAX_LIFESPAN = 300; // Number of frames before disappearing
 	private static final double HOMING_DISTANCE = 300; // Max distance for homing behavior
 
