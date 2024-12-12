@@ -69,8 +69,6 @@ public class LevelThree extends LevelParent {
         }
     }
 
-
-
     @Override
     protected void spawnEnemyUnits() {
         if (getCurrentNumberOfEnemies() == 0) {
@@ -82,10 +80,6 @@ public class LevelThree extends LevelParent {
             System.out.println("Boss added to enemy units.");
         }
     }
-
-
-
-
 
 
     @Override

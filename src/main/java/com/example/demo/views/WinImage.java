@@ -15,7 +15,7 @@ public class WinImage extends ImageView {
 
 		// Center the image horizontally and position it above the menu
 		setLayoutX((screenWidth - getFitWidth()) / 2);
-		setLayoutY(screenHeight / 2 - getFitHeight() - 150); // Adjust vertical position (closer to the menu)
+		setLayoutY(screenHeight / 2 - getFitHeight() - 450); // Adjust vertical position (closer to the menu)
 	}
 
 	public void showWinImage() {

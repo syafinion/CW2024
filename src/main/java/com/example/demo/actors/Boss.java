@@ -3,6 +3,9 @@ package com.example.demo.actors;
 import com.example.demo.levels.LevelParent;
 import com.example.demo.levels.LevelThree;
 import com.example.demo.views.LevelViewLevelTwo;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.util.Duration;
 
 import java.util.*;
 
@@ -32,7 +35,7 @@ public class Boss extends FighterPlane {
 	private int shieldCooldownFrames;
 	private static final int SHIELD_MAX_HEALTH = 50; // Max health for the shield
 	private int shieldHealth; // Current shield health
-
+	private boolean shieldDestroyed = false; // Tracks whether the shield is permanently destroyed
 
 	private LevelParent level;
 	public Boss(LevelParent level){
@@ -96,20 +99,22 @@ public class Boss extends FighterPlane {
 		}
 	}
 
-
-
 	@Override
 	public void takeDamage() {
 		if (isShielded) {
 			shieldHealth--;
 			updateShieldHealthBar(); // Update the shield health bar
+			showShieldHitEffect();   // Apply the hit effect
 			if (shieldHealth <= 0) {
-				deactivateShield(); // Deactivate shield when health is 0
+				deactivateShield(); // Deactivate the shield
+				shieldDestroyed = true; // Permanently destroy the shield
+				System.out.println("Shield is permanently destroyed.");
 			}
 		} else {
 			super.takeDamage(); // Regular damage when not shielded
 		}
 	}
+
 
 	private void initializeMovePattern() {
 		for (int i = 0; i < MOVE_FREQUENCY_PER_CYCLE; i++) {
@@ -121,6 +126,12 @@ public class Boss extends FighterPlane {
 	}
 
 	private void updateShield() {
+		if (shieldDestroyed) {
+			isShielded = false; // Ensure shield remains inactive
+			System.out.println("Shield is permanently destroyed and cannot be reactivated.");
+			return;
+		}
+
 		if (isShielded) {
 			framesWithShieldActivated++;
 			System.out.println("Shield active. Frame count: " + framesWithShieldActivated);
@@ -137,7 +148,6 @@ public class Boss extends FighterPlane {
 		}
 		System.out.println("Shield is " + (isShielded ? "active" : "inactive") + ", Cooldown: " + shieldCooldownFrames);
 	}
-
 
 
 
@@ -169,6 +179,11 @@ public class Boss extends FighterPlane {
 		// 1. The boss's health is below 75%, AND
 		// 2. A random chance based on the configured BOSS_SHIELD_PROBABILITY, AND
 		// 3. No cooldown is in effect.
+
+		if (shieldDestroyed) {
+			return false;
+		}
+
 		boolean shouldActivate = getHealth() <= 75 && Math.random() < BOSS_SHIELD_PROBABILITY && shieldCooldownFrames == 0;
 		System.out.println("Shield activation condition met: " + shouldActivate);
 		return shouldActivate;
@@ -195,6 +210,24 @@ public class Boss extends FighterPlane {
 		shieldCooldownFrames = SHIELD_COOLDOWN_FRAMES; // Start cooldown period
 		System.out.println("Shield deactivated! Cooldown started.");
 	}
+
+	private void showShieldHitEffect() {
+		if (!isShielded) {
+			return; // Only apply the effect if the shield is active
+		}
+
+		Timeline flashEffect = new Timeline(
+				new KeyFrame(Duration.seconds(0), e -> {
+					this.setStyle("-fx-opacity: 0.5; -fx-effect: dropshadow(gaussian, cyan, 30, 0.8, 0, 0);");
+				}),
+				new KeyFrame(Duration.seconds(0.1), e -> {
+					this.setStyle("-fx-opacity: 1.0; -fx-effect: none;");
+				})
+		);
+		flashEffect.setCycleCount(1);
+		flashEffect.play();
+	}
+
 
 	public int getHealth() {
 		return super.getHealth(); // or just return getHealth();

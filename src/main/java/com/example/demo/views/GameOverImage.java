@@ -15,6 +15,6 @@ public class GameOverImage extends ImageView {
 
 		// Center the image horizontally and position it above the menu
 		setLayoutX((screenWidth - getFitWidth()) / 2);
-		setLayoutY(screenHeight / 2 - getFitHeight() - 600); // Adjust vertical position (above the menu)
+		setLayoutY(screenHeight / 2 - getFitHeight() - 450); // Adjust vertical position (above the menu)
 	}
 }
