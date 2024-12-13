@@ -43,33 +43,58 @@ public abstract class LevelParent extends Observable {
 
 	/** Delay between game loop cycles in milliseconds. */
 	private static final int MILLISECOND_DELAY = 50;
+	/** Height of the game screen. */
 	private final double screenHeight;
+	/** Width of the game screen. */
 	private final double screenWidth;
+	/** Maximum Y position for enemies. */
 	private final double enemyMaximumYPosition;
-
+	/** Root group for all graphical elements in the level. */
 	private final Group root;
+	/** Timeline for the game loop. */
 	protected final Timeline timeline;
+	/** User-controlled plane. */
 	private final UserPlane user;
+	/** Scene representing the current level. */
 	private final Scene scene;
+	/** Background image for the level. */
 	private final ImageView background;
-
+	/** List of friendly units in the level. */
 	private final List<ActiveActorDestructible> friendlyUnits;
+	/** List of enemy units in the level. */
 	public final List<ActiveActorDestructible> enemyUnits;
+	/** List of projectiles fired by the user. */
 	private final List<ActiveActorDestructible> userProjectiles;
+	/** List of projectiles fired by enemies. */
 	private final List<ActiveActorDestructible> enemyProjectiles;
 
+	/** Current number of enemies in the level. */
 	private int currentNumberOfEnemies;
-	private LevelView levelView;
-	protected Boss boss;
 
+	/** Level-specific UI elements. */
+	private LevelView levelView;
+
+	/** Boss entity in the level (if any). */
+	protected Boss boss;
+	/** Indicates if the game is paused. */
 	private boolean isPaused = false;
+
+	/** Pause menu displayed when the game is paused. */
 	private PauseMenu pauseMenu;
 
+	/** Indicates if the level is transitioning to the next level. */
 	private boolean transitioningToNextLevel = false;
+
+	/** Controller managing game logic and transitions. */
 	private final Controller controller;
 
+	/** Manager for level-specific UI components. */
 	private LevelUIManager levelUIManager;
+
+	/** Text element displaying the current level. */
 	private Text levelText;
+
+	/** Text element displaying the objective of the level. */
 	private Text objectiveText;
 	public UserPlane getUserPlane() {
 		return user;
@@ -135,6 +160,11 @@ public abstract class LevelParent extends Observable {
 	 * Updates the level view, including UI elements such as health bars and shields.
 	 */
 
+	/**
+	 * Checks whether the game is currently paused.
+	 *
+	 * @return true if the game is paused; false otherwise
+	 */
 	protected boolean isGamePaused() {
 		return isPaused;
 	}
@@ -278,11 +308,18 @@ public abstract class LevelParent extends Observable {
 		});
 		fadeOut.play();
 	}
-
+	/**
+	 * Stops the game timeline.
+	 */
 	public void stop() {
 		timeline.stop();
 	}
 
+	/**
+	 * Gets the LevelView associated with this level.
+	 *
+	 * @return the LevelView instance
+	 */
 	public LevelView getLevelView() {
 		return levelView;
 	}
@@ -390,6 +427,11 @@ public abstract class LevelParent extends Observable {
 		notifyObservers("MAIN_MENU"); // Use a constant string identifier for the main menu
 	}
 
+	/**
+	 * Gets the screen height.
+	 *
+	 * @return the screen height
+	 */
 	public double getScreenHeight() {
 		return this.scene.getHeight();
 	}
@@ -421,35 +463,41 @@ public abstract class LevelParent extends Observable {
 	private final Map<ActiveActorDestructible, Rectangle> boundingBoxHighlights = new HashMap<>();
 
 	// TESTING
-	private void updateActors() {
-		friendlyUnits.forEach(plane -> {
-			plane.updateActor();
-			// Update bounding box visualization
-			Rectangle highlight = boundingBoxHighlights.computeIfAbsent(plane, p -> {
-				Rectangle rect = new Rectangle();
-				rect.setStroke(Color.RED);
-				rect.setFill(Color.TRANSPARENT);
-				root.getChildren().add(rect);
-				return rect;
-			});
-			plane.updateBoundingBoxHighlight(highlight);
-		});
-		enemyUnits.forEach(enemy -> {
-			enemy.updateActor();
-			// Update bounding box visualization
-			Rectangle highlight = boundingBoxHighlights.computeIfAbsent(enemy, e -> {
-				Rectangle rect = new Rectangle();
-				rect.setStroke(Color.RED);
-				rect.setFill(Color.TRANSPARENT);
-				root.getChildren().add(rect);
-				return rect;
-			});
-			enemy.updateBoundingBoxHighlight(highlight);
-		});
-		userProjectiles.forEach(projectile -> projectile.updateActor());
-		enemyProjectiles.forEach(projectile -> projectile.updateActor());
-	}
+//	private void updateActors() {
+//		friendlyUnits.forEach(plane -> {
+//			plane.updateActor();
+//			// Update bounding box visualization
+//			Rectangle highlight = boundingBoxHighlights.computeIfAbsent(plane, p -> {
+//				Rectangle rect = new Rectangle();
+//				rect.setStroke(Color.RED);
+//				rect.setFill(Color.TRANSPARENT);
+//				root.getChildren().add(rect);
+//				return rect;
+//			});
+//			plane.updateBoundingBoxHighlight(highlight);
+//		});
+//		enemyUnits.forEach(enemy -> {
+//			enemy.updateActor();
+//			// Update bounding box visualization
+//			Rectangle highlight = boundingBoxHighlights.computeIfAbsent(enemy, e -> {
+//				Rectangle rect = new Rectangle();
+//				rect.setStroke(Color.RED);
+//				rect.setFill(Color.TRANSPARENT);
+//				root.getChildren().add(rect);
+//				return rect;
+//			});
+//			enemy.updateBoundingBoxHighlight(highlight);
+//		});
+//		userProjectiles.forEach(projectile -> projectile.updateActor());
+//		enemyProjectiles.forEach(projectile -> projectile.updateActor());
+//	}
 
+	private void updateActors() {
+		friendlyUnits.forEach(ActiveActorDestructible::updateActor);
+		enemyUnits.forEach(ActiveActorDestructible::updateActor);
+		userProjectiles.forEach(ActiveActorDestructible::updateActor);
+		enemyProjectiles.forEach(ActiveActorDestructible::updateActor);
+	}
 
 	private void removeAllDestroyedActors() {
 		removeDestroyedActors(friendlyUnits);
@@ -461,17 +509,27 @@ public abstract class LevelParent extends Observable {
 
 	//TESTING DEBUG
 	// Remove bounding boxes when an actor is destroyed
+//	private void removeDestroyedActors(List<ActiveActorDestructible> actors) {
+//		List<ActiveActorDestructible> destroyedActors = actors.stream()
+//				.filter(ActiveActorDestructible::isDestroyed)
+//				.collect(Collectors.toList());
+//		destroyedActors.forEach(actor -> {
+//			// Remove bounding box visualization
+//			Rectangle highlight = boundingBoxHighlights.remove(actor);
+//			if (highlight != null) {
+//				root.getChildren().remove(highlight);
+//			}
+//		});
+//		root.getChildren().removeAll(destroyedActors);
+//		actors.removeAll(destroyedActors);
+//	}
+
+
+	// Remove bounding box logic in removeDestroyedActors
 	private void removeDestroyedActors(List<ActiveActorDestructible> actors) {
 		List<ActiveActorDestructible> destroyedActors = actors.stream()
 				.filter(ActiveActorDestructible::isDestroyed)
 				.collect(Collectors.toList());
-		destroyedActors.forEach(actor -> {
-			// Remove bounding box visualization
-			Rectangle highlight = boundingBoxHighlights.remove(actor);
-			if (highlight != null) {
-				root.getChildren().remove(highlight);
-			}
-		});
 		root.getChildren().removeAll(destroyedActors);
 		actors.removeAll(destroyedActors);
 	}
@@ -625,41 +683,86 @@ public abstract class LevelParent extends Observable {
 	}
 
 
-
+	/**
+	 * Gets the user plane.
+	 *
+	 * @return the user plane
+	 */
 	public UserPlane getUser() {
 		return user;
 	}
 
+	/**
+	 * Gets the root group of the scene.
+	 *
+	 * @return the root group
+	 */
 	protected Group getRoot() {
 		return root;
 	}
 
+	/**
+	 * Gets the current number of enemies.
+	 *
+	 * @return the number of enemy units
+	 */
 	protected int getCurrentNumberOfEnemies() {
 		return enemyUnits.size();
 	}
 
+	/**
+	 * Adds an enemy unit to the level.
+	 *
+	 * @param enemy the enemy unit to add
+	 */
 	protected void addEnemyUnit(ActiveActorDestructible enemy) {
 		enemyUnits.add(enemy);
 		root.getChildren().add(enemy);
 	}
 
+	/**
+	 * Gets the maximum Y position for enemies.
+	 *
+	 * @return the maximum Y position
+	 */
 	protected double getEnemyMaximumYPosition() {
 		return enemyMaximumYPosition;
 	}
 
+	/**
+	 * Gets the screen width.
+	 *
+	 * @return the screen width
+	 */
 	protected double getScreenWidth() {
 		return screenWidth;
 	}
 
+	/**
+	 * Checks if the user is destroyed.
+	 *
+	 * @return true if the user is destroyed; false otherwise
+	 */
 	protected boolean userIsDestroyed() {
 		return user.isDestroyed();
 	}
+
+	/**
+	 * Adds an enemy projectile to the level.
+	 *
+	 * @param projectile the projectile to add
+	 */
 	protected void addEnemyProjectile(ActiveActorDestructible projectile) {
 		enemyProjectiles.add(projectile);
 		root.getChildren().add(projectile);
 	}
 
 
+	/**
+	 * Resets the user's health to the specified value.
+	 *
+	 * @param health the new health value
+	 */
 	// Add a method to reset the user's health when transitioning to a new level
 	protected void resetUserHealth(int health) {
 		user.setHealth(health); // Reset the health
@@ -671,7 +774,9 @@ public abstract class LevelParent extends Observable {
 		currentNumberOfEnemies = enemyUnits.size();
 	}
 
-
+	/**
+	 * Restarts the game from Level One.
+	 */
 	protected void restartToLevelOne() {
 		timeline.stop(); // Stop the game timeline
 		try {
