@@ -3,6 +3,12 @@ package com.example.demo.actors;
 import javafx.scene.Scene;
 import javafx.scene.media.AudioClip;
 
+/**
+ * Represents the player's plane in the game.
+ * <p>
+ * The UserPlane can move, fire projectiles, and take damage.
+ * </p>
+ */
 public class UserPlane extends FighterPlane {
 
 	private static final String IMAGE_NAME = "userplane.png";
@@ -28,6 +34,12 @@ public class UserPlane extends FighterPlane {
 
 	private long lastFireTime;
 
+	/**
+	 * Constructs a UserPlane with the specified health and scene reference.
+	 *
+	 * @param initialHealth the initial health of the plane
+	 * @param scene         the scene where the plane is displayed
+	 */
 	public UserPlane(int initialHealth, Scene scene) {
 		super(IMAGE_NAME, IMAGE_HEIGHT, INITIAL_X_POSITION, INITIAL_Y_POSITION, initialHealth);
 		this.scene = scene; // Save the scene for dynamic height and width calculation
@@ -100,6 +112,11 @@ public class UserPlane extends FighterPlane {
 		updatePosition();
 	}
 
+	/**
+	 * Fires a projectile from the plane.
+	 *
+	 * @return the fired projectile, or null if on cooldown
+	 */
 	@Override
 	public ActiveActorDestructible fireProjectile() {
 		long currentTime = System.currentTimeMillis();

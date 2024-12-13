@@ -1,5 +1,13 @@
 package com.example.demo.actors;
 
+/**
+ * Represents a projectile fired by an enemy plane.
+ * <p>
+ * The projectile initially homes in on the player's plane within a specified
+ * distance and then transitions to a straight-line trajectory. It is destroyed
+ * if it exceeds a set lifespan or moves off-screen.
+ * </p>
+ */
 public class EnemyProjectile extends Projectile {
 
 	private static final String IMAGE_NAME = "enemyFire.png";
@@ -13,6 +21,13 @@ public class EnemyProjectile extends Projectile {
 	private boolean isHoming; // Whether the projectile is still homing
 	private double angle; // Angle of movement for the straight-line trajectory
 
+	/**
+	 * Constructs an EnemyProjectile with the specified position and target player plane.
+	 *
+	 * @param initialXPos the initial X-coordinate of the projectile
+	 * @param initialYPos the initial Y-coordinate of the projectile
+	 * @param userPlane   the player's plane that the projectile targets
+	 */
 	public EnemyProjectile(double initialXPos, double initialYPos, UserPlane userPlane) {
 		super(IMAGE_NAME, IMAGE_HEIGHT, initialXPos, initialYPos);
 		this.userPlane = userPlane;
@@ -72,11 +87,21 @@ public class EnemyProjectile extends Projectile {
 		return new EnemyProjectile(this.getTranslateX(), this.getTranslateY(), userPlane);
 	}
 
-
+	/**
+	 * Calculates the angle for the projectile's straight-line movement.
+	 *
+	 * @param deltaX the X-direction displacement
+	 * @param deltaY the Y-direction displacement
+	 */
 	private void calculateAngleForStraightLine(double deltaX, double deltaY) {
 		this.angle = Math.atan2(deltaY, deltaX); // Calculate angle for straight-line movement
 	}
 
+	/**
+	 * Checks if the projectile has moved off the screen.
+	 *
+	 * @return true if the projectile is off-screen, false otherwise
+	 */
 	private boolean isOffScreen() {
 		// Check if the projectile has moved off the screen
 		double x = this.getTranslateX() + this.getLayoutX();

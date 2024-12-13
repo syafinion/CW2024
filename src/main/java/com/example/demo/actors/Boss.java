@@ -9,13 +9,21 @@ import javafx.util.Duration;
 
 import java.util.*;
 
+/**
+ * Represents the boss character in the game.
+ * <p>
+ * The Boss has unique behaviors, including firing projectiles, using a shield for protection,
+ * and moving according to a defined pattern. The shield has a cooldown and can be permanently
+ * destroyed after taking enough damage.
+ * </p>
+ */
 public class Boss extends FighterPlane {
 
 	private static final String IMAGE_NAME = "bossplane.png";
 	private static final double INITIAL_X_POSITION = 1000.0;
 	private static final double INITIAL_Y_POSITION = 400;
 	private static final double PROJECTILE_Y_POSITION_OFFSET = 75.0;
-	private static final double BOSS_FIRE_RATE = .0083;
+	private static final double BOSS_FIRE_RATE = .02;
 	private static final double BOSS_SHIELD_PROBABILITY = 0.2; // test
 	private static final int SHIELD_COOLDOWN_FRAMES = 300;
 	private static final int IMAGE_HEIGHT = 300;
@@ -37,6 +45,14 @@ public class Boss extends FighterPlane {
 	private boolean shieldDestroyed = false; // Tracks whether the shield is permanently destroyed
 
 	private LevelParent level;
+
+
+	/**
+	 * Constructs a Boss object associated with a specific level.
+	 *
+	 * @param level the level to which this boss belongs
+	 */
+
 	public Boss(LevelParent level){
 		super(IMAGE_NAME, IMAGE_HEIGHT, INITIAL_X_POSITION, INITIAL_Y_POSITION, HEALTH);
 		this.level = level;

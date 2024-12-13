@@ -3,7 +3,13 @@ package com.example.demo.views;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
-import java.net.URL;
+/**
+ * Represents the shield image displayed around the boss.
+ * <p>
+ * This class handles the display and visibility of the shield image,
+ * including positioning and resizing.
+ * </p>
+ */
 
 public class ShieldImage extends ImageView {
 
@@ -11,6 +17,12 @@ public class ShieldImage extends ImageView {
 
 	public static final int SHIELD_SIZE = 200;
 
+	/**
+	 * Constructs a {@code ShieldImage} at the specified position.
+	 *
+	 * @param xPosition the X-coordinate for the shield's position
+	 * @param yPosition the Y-coordinate for the shield's position
+	 */
 	public ShieldImage(double xPosition, double yPosition) {
 		this.setLayoutX(xPosition);
 		this.setLayoutY(yPosition);
@@ -27,12 +39,18 @@ public class ShieldImage extends ImageView {
 	}
 
 
-
+	/**
+	 * Makes the shield visible and brings it to the front.
+	 */
 	public void showShield() {
 		System.out.println("Showing shield");
 		this.setVisible(true);
 		this.toFront();
 	}
+
+	/**
+	 * Hides the shield and ensures it stays in front of other elements.
+	 */
 	
 	public void hideShield() {
 		System.out.println("Hiding shield");

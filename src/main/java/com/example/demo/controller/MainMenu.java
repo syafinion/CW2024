@@ -28,7 +28,9 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-
+/**
+ * Represents the main menu of the game, including options to start, adjust settings, and exit.
+ */
 public class MainMenu {
     private final Controller controller;
     private static final String IMAGE_NAME = "/com/example/demo/images/mainmenubg.gif";
@@ -40,11 +42,19 @@ public class MainMenu {
     private int pendingWidth;
     private int pendingHeight;
     private boolean pendingFullscreen;
-
+    /**
+     * Constructs the MainMenu instance.
+     *
+     * @param controller the game controller managing the main menu
+     */
     public MainMenu(Controller controller) {
         this.controller = controller;
     }
-
+    /**
+     * Creates and returns the main menu scene.
+     *
+     * @return the Scene object representing the main menu
+     */
     public Scene createMenuScene() {
         // Initialize root first to avoid NullPointerException
         root = new Pane();
@@ -127,7 +137,12 @@ public class MainMenu {
         return new Scene(root);
     }
 
-
+    /**
+     * Adds a glowing effect to the specified text.
+     *
+     * @param text  the Text object to apply the glow effect to
+     * @param color the color of the glow effect
+     */
     public void addGlowEffect(Text text, Color color) {
         DropShadow glow = new DropShadow();
         glow.setColor(color);
@@ -137,7 +152,11 @@ public class MainMenu {
     }
 
 
-
+    /**
+     * Creates the settings pane with controls for resolution and volume.
+     *
+     * @return the Pane object representing the settings menu
+     */
     private Pane createSettingsPane() {
         Pane settingsPane = new Pane();
         settingsPane.setPrefSize(700, 500); // Increased height to accommodate buttons

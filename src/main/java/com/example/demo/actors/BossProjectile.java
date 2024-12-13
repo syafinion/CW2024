@@ -1,5 +1,11 @@
 package com.example.demo.actors;
 
+/**
+ * Represents a projectile fired by the boss.
+ * <p>
+ * The projectile initially homes in on the player's position and then follows a straight-line trajectory.
+ * </p>
+ */
 public class BossProjectile extends Projectile {
 
 	private static final String IMAGE_NAME = "fireball.png";
@@ -13,7 +19,13 @@ public class BossProjectile extends Projectile {
 	private double angle; // Angle of movement for the straight-line trajectory
 	private int lifespan;
 
-
+	/**
+	 * Constructs a BossProjectile with an initial position and a target player.
+	 *
+	 * @param initialXPos the initial X-coordinate of the projectile
+	 * @param initialYPos the initial Y-coordinate of the projectile
+	 * @param userPlane   the player's plane that the projectile targets
+	 */
 	public BossProjectile(double initialXPos, double initialYPos, UserPlane userPlane) {
 		super(IMAGE_NAME, IMAGE_HEIGHT, initialXPos, initialYPos);
 		this.userPlane = userPlane;

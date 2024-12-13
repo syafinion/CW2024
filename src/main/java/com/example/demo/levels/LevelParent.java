@@ -21,9 +21,27 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
+/**
+ * Abstract parent class for all game levels.
+ * <p>
+ * This class defines the common functionality and structure shared across all levels,
+ * such as initializing the scene, managing actors, handling collisions, and tracking the game state.
+ * </p>
+ *
+ * <p><strong>Key Responsibilities:</strong></p>
+ * <ul>
+ *   <li>Manage enemy and user units, projectiles, and level-specific behavior.</li>
+ *   <li>Define common actions like pausing, resuming, and restarting levels.</li>
+ *   <li>Handle scene transitions and user interactions.</li>
+ * </ul>
+ */
+
 public abstract class LevelParent extends Observable {
 
+	/** Adjustment value for calculating the maximum Y position of enemies. */
 	private static final double SCREEN_HEIGHT_ADJUSTMENT = 150;
+
+	/** Delay between game loop cycles in milliseconds. */
 	private static final int MILLISECOND_DELAY = 50;
 	private final double screenHeight;
 	private final double screenWidth;
@@ -56,6 +74,17 @@ public abstract class LevelParent extends Observable {
 	public UserPlane getUserPlane() {
 		return user;
 	}
+
+
+	/**
+	 * Constructs a new LevelParent instance.
+	 *
+	 * @param backgroundImageName the name of the background image for the level
+	 * @param screenHeight the height of the game screen
+	 * @param screenWidth the width of the game screen
+	 * @param playerInitialHealth the initial health of the player
+	 * @param controller the controller managing game logic and transitions
+	 */
 	public LevelParent(String backgroundImageName, double screenHeight, double screenWidth, int playerInitialHealth, Controller controller) {
 		this.root = new Group();
 		this.scene = new Scene(root, screenWidth, screenHeight);
@@ -77,13 +106,34 @@ public abstract class LevelParent extends Observable {
 		friendlyUnits.add(user);
 	}
 
+	/**
+	 * Initializes the friendly units for the level (e.g., the user plane).
+	 * This method must be implemented by subclasses.
+	 */
+
 	protected abstract void initializeFriendlyUnits();
+
+	/**
+	 * Checks if the game is over and takes the appropriate actions (e.g., showing game over menu or transitioning to the next level).
+	 * This method must be implemented by subclasses.
+	 */
 
 	protected abstract void checkIfGameOver();
 
 	protected abstract void spawnEnemyUnits();
 
+	/**
+	 * Instantiates the level-specific view for the UI.
+	 * This method must be implemented by subclasses.
+	 *
+	 * @return the LevelView for the current level
+	 */
+
 	protected abstract LevelView instantiateLevelView();
+
+	/**
+	 * Updates the level view, including UI elements such as health bars and shields.
+	 */
 
 	protected boolean isGamePaused() {
 		return isPaused;
@@ -93,25 +143,43 @@ public abstract class LevelParent extends Observable {
 	protected void updateLevelView() {
 		levelUIManager.updateLevelView(user, levelView, boss);
 	}
+
+	/**
+	 * Shows the game over menu, providing options to restart the level or return to the main menu.
+	 */
+
+
 	protected void showGameOverMenu() {
 		levelUIManager.showGameOverMenu(this::restartLevel, this::goToMainMenu);
 	}
-
+	/**
+	 * Shows the win menu, providing options to restart from Level One or return to the main menu.
+	 */
 	protected void showWinMenu() {
 		levelUIManager.showWinMenu(this::restartToLevelOne, this::goToMainMenu);
 	}
-
+	/**
+	 * Handles the game over logic, stopping the timeline and displaying the game over menu.
+	 */
 	protected void loseGame() {
 		timeline.stop(); // Stop game logic
 		showGameOverMenu(); // Display the game over menu
 	}
 
-
+	/**
+	 * Starts the level and initiates the countdown timer.
+	 *
+	 * @param onComplete a {@link Runnable} to execute after the countdown completes
+	 */
 	private void startCountdown(Runnable onComplete) {
 		String levelNumber = getClass().getSimpleName().replace("Level", "");
 		levelUIManager.startCountdown(onComplete, levelNumber);
 	}
-
+	/**
+	 * Initializes the scene for the level, including background, UI elements, and countdown animations.
+	 *
+	 * @return the initialized {@link Scene} for the level
+	 */
 	public Scene initializeScene() {
 		initializeBackground();
 		initializeFriendlyUnits();
@@ -185,11 +253,18 @@ public abstract class LevelParent extends Observable {
 	}
 
 
-
+	/**
+	 * Starts the game by requesting focus on the background and playing the game timeline.
+	 */
 	public void startGame() {
 		background.requestFocus();
 	}
 
+	/**
+	 * Transitions to the next level with a fade-out animation.
+	 *
+	 * @param levelName the name of the next level to transition to
+	 */
 	public void goToNextLevel(String levelName) {
 		transitioningToNextLevel = true; // Start transition
 		timeline.stop();
@@ -267,7 +342,9 @@ public abstract class LevelParent extends Observable {
 			pauseGame();
 		}
 	}
-
+	/**
+	 * Pauses the game, showing the pause menu and stopping the game timeline.
+	 */
 	public void pauseGame() {
 		isPaused = true;
 		timeline.pause();
@@ -285,6 +362,9 @@ public abstract class LevelParent extends Observable {
 		root.getChildren().add(pauseMenu.getRoot());
 	}
 
+	/**
+	 * Resumes the game if it is paused, and removes the pause menu from the scene.
+	 */
 	public void resumeGame() {
 		isPaused = false;
 		timeline.play();
@@ -294,6 +374,9 @@ public abstract class LevelParent extends Observable {
 		}
 	}
 
+	/**
+	 * Restarts the current level by stopping the timeline and reloading the level.
+	 */
 	public void restartLevel() {
 		timeline.stop();
 		// Restart the current level
@@ -396,50 +479,6 @@ public abstract class LevelParent extends Observable {
 	private void handlePlaneCollisions() {
 		handleCollisions(friendlyUnits, enemyUnits);
 	}
-
-
-	// NEW CODE
-//	private void handleUserProjectileCollisions() {
-//		List<ActiveActorDestructible> enemiesToRemove = new ArrayList<>();
-//		List<ActiveActorDestructible> projectilesToRemove = new ArrayList<>();
-//
-//		for (ActiveActorDestructible enemy : enemyUnits) {
-//			if (!enemy.isVisibleOnScreen(screenWidth, screenHeight)) {
-//				continue; // Skip enemies not visible on the screen
-//			}
-//			for (ActiveActorDestructible projectile : userProjectiles) {
-//				if (enemy.getAdjustedBounds().intersects(projectile.getAdjustedBounds())) {
-//					enemy.takeDamage();
-//					projectile.takeDamage();
-//
-//					if (enemy.isDestroyed()) {
-//						user.incrementKillCount();
-//						System.out.println("Enemy destroyed. Total kills: " + user.getNumberOfKills());
-//						enemiesToRemove.add(enemy);
-//
-//						// Remove bounding box visualization
-//						Rectangle highlight = boundingBoxHighlights.remove(enemy);
-//						if (highlight != null) {
-//							root.getChildren().remove(highlight);
-//						}
-//					}
-//					if (projectile.isDestroyed()) {
-//						projectilesToRemove.add(projectile);
-//					}
-//				}
-//			}
-//		}
-//
-//		// Temporarily remove enemies and projectiles from the game
-//		root.getChildren().removeAll(enemiesToRemove);
-//		root.getChildren().removeAll(projectilesToRemove);
-//		enemyUnits.removeAll(enemiesToRemove);
-//		userProjectiles.removeAll(projectilesToRemove);
-//
-//		// Update the kill count display
-//		levelView.updateKillCountDisplay(user.getNumberOfKills());
-//		System.out.println("Kill count updated in UI: " + user.getNumberOfKills());
-//	}
 
 
 	private void handleUserProjectileCollisions() {

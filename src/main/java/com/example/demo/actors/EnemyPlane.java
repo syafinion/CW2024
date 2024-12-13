@@ -5,7 +5,14 @@ import javafx.scene.Group;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.util.Duration;
-
+/**
+ * Represents an enemy plane in the game.
+ * <p>
+ * The enemy plane moves horizontally across the screen and can fire projectiles
+ * at the player's plane. It features logic to avoid firing when the player is
+ * directly underneath and includes a visual damage effect when hit.
+ * </p>
+ */
 public class EnemyPlane extends FighterPlane {
 
 	private static final String IMAGE_NAME = "enemyplane.png";
@@ -21,6 +28,14 @@ public class EnemyPlane extends FighterPlane {
 	private boolean hasPassedPlayer; // Flag to indicate if the jet has passed the player
 	private static final double VERTICAL_SAFETY_DISTANCE = 100.0; // Distance to prevent shooting when user is underneath
 
+	/**
+	 * Constructs an EnemyPlane with the specified position and references to the player plane and root group.
+	 *
+	 * @param initialXPos the initial X-coordinate of the enemy plane
+	 * @param initialYPos the initial Y-coordinate of the enemy plane
+	 * @param userPlane   the player's plane
+	 * @param root        the root group to which the enemy plane belongs
+	 */
 	public EnemyPlane(double initialXPos, double initialYPos, UserPlane userPlane, Group root) {
 		super(IMAGE_NAME, IMAGE_HEIGHT, initialXPos, initialYPos, INITIAL_HEALTH);
 		this.userPlane = userPlane; // Initialize UserPlane reference
@@ -56,6 +71,9 @@ public class EnemyPlane extends FighterPlane {
 		showDamageEffect(); // Trigger the damage effect
 	}
 
+	/**
+	 * Displays a visual effect when the enemy plane is damaged.
+	 */
 	private void showDamageEffect() {
 		// Create an ImageView for the damage image
 		ImageView damageEffect = new ImageView(new Image(getClass().getResource(DAMAGE_IMAGE).toExternalForm()));
@@ -84,12 +102,21 @@ public class EnemyPlane extends FighterPlane {
 		updatePosition();
 	}
 
+	/**
+	 * Checks if the enemy plane has moved past the player's X position.
+	 *
+	 * @return true if the enemy plane has passed the player, false otherwise
+	 */
 	private boolean hasPassedPlayerPosition() {
 		// Check if the jet has moved past the player's X position
 		return this.getTranslateX() + this.getLayoutX() < userPlane.getTranslateX() + userPlane.getLayoutX();
 	}
 
-
+	/**
+	 * Determines if the player's plane is directly underneath the enemy plane.
+	 *
+	 * @return true if the player's plane is vertically too close underneath the enemy plane, false otherwise
+	 */
 	private boolean isUserPlaneUnderneath() {
 		// Check if the user plane is vertically too close underneath the enemy plane
 		double enemyPlaneY = this.getTranslateY() + this.getLayoutY();

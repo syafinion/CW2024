@@ -5,6 +5,10 @@ import com.example.demo.actors.EnemyPlane;
 import com.example.demo.views.LevelView;
 import com.example.demo.controller.Controller;
 
+/**
+ * Represents Level Two of the game.
+ * In this level, the player must defeat a specific number of enemies to advance.
+ */
 public class LevelTwo extends LevelParent {
 
 	protected static final String BACKGROUND_IMAGE_NAME = "/com/example/demo/images/leveltwobg.gif";
@@ -15,15 +19,22 @@ public class LevelTwo extends LevelParent {
 	protected static final double ENEMY_SPAWN_PROBABILITY = 0.30;
 	private static final int PLAYER_INITIAL_HEALTH = 5;
 
+	/**
+	 * Constructs a LevelTwo instance.
+	 *
+	 * @param screenHeight the height of the screen
+	 * @param screenWidth  the width of the screen
+	 * @param controller   the game controller
+	 */
 	public LevelTwo(double screenHeight, double screenWidth, Controller controller) {
 		super(BACKGROUND_IMAGE_NAME, screenHeight, screenWidth, PLAYER_INITIAL_HEALTH, controller); // Pass the controller
 		resetUserHealth(PLAYER_INITIAL_HEALTH); // Ensure health is reset
 		System.out.println("User health initialized to: " + PLAYER_INITIAL_HEALTH);
 	}
 
-
-
-
+	/**
+	 * Checks if the game is over or if the player has met the requirements to advance.
+	 */
 	@Override
 	protected void checkIfGameOver() {
 		if (userIsDestroyed()) {
@@ -39,6 +50,9 @@ public class LevelTwo extends LevelParent {
 		}
 	}
 
+	/**
+	 * Initializes the player's units for this level.
+	 */
 	@Override
 	protected void initializeFriendlyUnits() {
 		resetUserHealth(PLAYER_INITIAL_HEALTH); // Ensure health is reset first
@@ -46,7 +60,9 @@ public class LevelTwo extends LevelParent {
 	}
 
 
-
+	/**
+	 * Spawns enemy units in the level.
+	 */
 	@Override
 	protected void spawnEnemyUnits() {
 		int currentNumberOfEnemies = getCurrentNumberOfEnemies();
@@ -86,16 +102,22 @@ public class LevelTwo extends LevelParent {
 		}
 	}
 
-
-
-
+	/**
+	 * Instantiates the level view for Level Two.
+	 *
+	 * @return the LevelView instance
+	 */
 	@Override
 	protected LevelView instantiateLevelView() {
 		// Pass `false` since LevelTwo is not LevelThree
 		return new LevelView(getRoot(), PLAYER_INITIAL_HEALTH, false);
 	}
 
-
+	/**
+	 * Checks if the player has reached the required number of kills to advance.
+	 *
+	 * @return true if the player has reached the kill target, false otherwise
+	 */
 	private boolean userHasReachedKillTarget() {
 		return getUser().getNumberOfKills() >= KILLS_TO_ADVANCE;
 	}

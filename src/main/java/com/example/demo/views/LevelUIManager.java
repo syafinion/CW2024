@@ -16,6 +16,13 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
+/**
+ * Manages the User Interface (UI) elements for each level.
+ * <p>
+ * This class is responsible for updating the level UI, displaying game over or win menus,
+ * and managing countdown timers and health bars.
+ * </p>
+ */
 public class LevelUIManager {
 
     private final double screenWidth;
@@ -23,7 +30,14 @@ public class LevelUIManager {
     private final Group root;
     private final Controller controller;
 
-
+    /**
+     * Constructs a new {@code LevelUIManager}.
+     *
+     * @param screenWidth the width of the screen
+     * @param screenHeight the height of the screen
+     * @param root the root {@link Group} for the level
+     * @param controller the game {@link Controller}
+     */
     public LevelUIManager(double screenWidth, double screenHeight, Group root, Controller controller) {
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
@@ -31,7 +45,13 @@ public class LevelUIManager {
         this.controller = controller;
     }
 
-
+    /**
+     * Updates the level UI by removing hearts, updating boss health bars, and handling shields.
+     *
+     * @param user the player's {@link UserPlane}
+     * @param levelView the {@link LevelView} instance for the level
+     * @param boss the boss {@link Boss} (if applicable)
+     */
 
     public void updateLevelView(UserPlane user, LevelView levelView, Boss boss) {
         // Update the heart display
@@ -50,7 +70,12 @@ public class LevelUIManager {
         }
     }
 
-
+    /**
+     * Displays the game over menu with options to restart the level or go to the main menu.
+     *
+     * @param restartLevel the action to restart the current level
+     * @param goToMainMenu the action to navigate to the main menu
+     */
     public void showGameOverMenu(Runnable restartLevel, Runnable goToMainMenu) {
         // Create a pane for the game-over menu
         Pane gameOverPane = new Pane();
@@ -88,6 +113,12 @@ public class LevelUIManager {
         root.getChildren().add(gameOverPane);
     }
 
+    /**
+     * Displays the win menu with options to restart or go to the main menu.
+     *
+     * @param restartToLevelOne the action to restart from Level 1
+     * @param goToMainMenu the action to navigate to the main menu
+     */
     public void showWinMenu(Runnable restartToLevelOne, Runnable goToMainMenu) {
         Pane winPane = new Pane();
         winPane.setPrefSize(screenWidth, screenHeight);
@@ -120,6 +151,12 @@ public class LevelUIManager {
         root.getChildren().add(winPane);
     }
 
+    /**
+     * Starts a countdown timer before the level begins.
+     *
+     * @param onComplete the action to run when the countdown ends
+     * @param levelNumber the number of the level as a string
+     */
     public void startCountdown(Runnable onComplete, String levelNumber) {
         Font retroFont = Font.loadFont(getClass().getResourceAsStream("/com/example/demo/images/PressStart2P-Regular.ttf"), 50);
 

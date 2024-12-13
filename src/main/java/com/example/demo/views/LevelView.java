@@ -8,6 +8,10 @@ import javafx.scene.text.Text;
 import javafx.scene.text.Font;
 import javafx.util.Duration;
 
+/**
+ * Represents the generic UI for a level, including health display and kill count.
+ */
+
 public class LevelView {
 	
 	protected static final double HEART_DISPLAY_X_POSITION = 5;
@@ -24,7 +28,13 @@ public class LevelView {
 
 	private final boolean isLevelThree;
 
-
+	/**
+	 * Constructs a new {@code LevelView}.
+	 *
+	 * @param root the root {@link Group} for the level
+	 * @param heartsToDisplay the initial number of hearts to display
+	 * @param isLevelThree whether this is the third level
+	 */
 
 
 
@@ -51,6 +61,11 @@ public class LevelView {
 	}
 
 
+	/**
+	 * Updates the kill count display with the current number of kills.
+	 *
+	 * @param kills the current number of kills
+	 */
 	public void updateKillCountDisplay(int kills) {
 		if (isLevelThree()) {
 			// Skip updating the kill count for LevelThree
@@ -134,6 +149,11 @@ public class LevelView {
 		root.getChildren().add(gameOverImage);
 	}
 
+	/**
+	 * Removes hearts from the health display.
+	 *
+	 * @param heartsRemaining the remaining number of hearts
+	 */
 	public void removeHearts(int heartsRemaining) {
 		int currentNumberOfHearts = heartDisplay.getContainer().getChildren().size();
 		System.out.println("Current hearts: " + currentNumberOfHearts + ", Hearts remaining: " + heartsRemaining);

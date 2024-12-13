@@ -11,18 +11,49 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
+
+/**
+ * Represents the third level of the game, featuring a challenging boss fight.
+ * <p>
+ * <strong>Key Features:</strong>
+ * <ul>
+ *     <li>Introduces a boss enemy with dynamic health, shield, and position updates.</li>
+ *     <li>Objective: Defeat the boss to complete the level.</li>
+ *     <li>Custom UI elements for boss health and shield visibility.</li>
+ * </ul>
+ */
+
 public class LevelThree extends LevelParent {
 
+    /** Path to the background image used for Level Three. */
     protected static final String BACKGROUND_IMAGE_NAME = "/com/example/demo/images/levelthreebg.gif";
+
+    /** Initial health of the player in Level Three. */
     private static final int PLAYER_INITIAL_HEALTH = 8;
+
+    /** The boss enemy featured in Level Three. */
     protected Boss boss;
+
+    /** The specialized level view for Level Three, including boss-specific UI elements. */
     private LevelViewLevelTwo levelView;
+
+    /**
+     * Constructs a new instance of LevelThree.
+     *
+     * @param screenHeight the height of the game screen
+     * @param screenWidth the width of the game screen
+     * @param controller the controller managing game logic and transitions
+     */
 
     public LevelThree(double screenHeight, double screenWidth, Controller controller) {
         super(BACKGROUND_IMAGE_NAME, screenHeight, screenWidth, PLAYER_INITIAL_HEALTH, controller); // Pass the controller
         boss = new Boss(this);
     }
-
+    /**
+     * Initializes the scene for Level Three, including objective text and animations.
+     *
+     * @return the initialized {@link Scene} for Level Three
+     */
 
     @Override
     public Scene initializeScene() {
@@ -51,12 +82,22 @@ public class LevelThree extends LevelParent {
         return scene;
     }
 
-
+    /**
+     * Initializes the friendly units for Level Three.
+     * Adds the user plane to the scene's root group.
+     */
     @Override
     protected void initializeFriendlyUnits() {
         getRoot().getChildren().add(getUser());
     }
 
+    /**
+     * Checks if the game is over based on the player's or boss's state.
+     * <ul>
+     *     <li>If the player's health is zero, the game ends with a loss.</li>
+     *     <li>If the boss is defeated, the game ends with a win.</li>
+     * </ul>
+     */
     @Override
     protected void checkIfGameOver() {
         if (userIsDestroyed()) {
@@ -69,6 +110,10 @@ public class LevelThree extends LevelParent {
         }
     }
 
+    /**
+     * Spawns the boss enemy if no enemies are currently present.
+     * Ensures the boss is added to the list of enemies for gameplay tracking.
+     */
     @Override
     protected void spawnEnemyUnits() {
         if (getCurrentNumberOfEnemies() == 0) {
@@ -81,7 +126,10 @@ public class LevelThree extends LevelParent {
         }
     }
 
-
+    /**
+     * Updates the level view, including health bars, shields, and boss position.
+     * Synchronizes the boss's shield visibility and position with the UI.
+     */
     @Override
     protected void updateLevelView() {
         super.updateLevelView(); // Update hearts and other UI elements
@@ -105,6 +153,10 @@ public class LevelThree extends LevelParent {
         }
     }
 
+    /**
+     * Adjusts the position of the boss dynamically based on screen dimensions.
+     * Ensures the boss is centered vertically and positioned near the right edge.
+     */
     public void adjustBossPosition() {
         if (boss != null) {
             double bossX = getScreenWidth() * 0.9 - boss.getBoundsInLocal().getWidth() / 2; // 90% from the left edge
@@ -118,12 +170,21 @@ public class LevelThree extends LevelParent {
     }
 
 
-
+    /**
+     * Updates the position of the boss's shield relative to its location.
+     *
+     * @param bossX the X-coordinate of the boss
+     * @param bossY the Y-coordinate of the boss
+     */
 public void updateBossShieldPosition(double bossX, double bossY) {
     levelView.updateShieldPosition(bossX, bossY);
 }
 
-
+    /**
+     * Instantiates the level view for Level Three, including boss-specific UI elements.
+     *
+     * @return the {@link LevelViewLevelTwo} instance for Level Three
+     */
     @Override
     protected LevelView instantiateLevelView() {
         levelView = new LevelViewLevelTwo(getRoot(), PLAYER_INITIAL_HEALTH);

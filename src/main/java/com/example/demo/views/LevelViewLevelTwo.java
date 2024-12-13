@@ -6,6 +6,9 @@ import javafx.scene.shape.Rectangle;
 
 import static com.example.demo.views.ShieldImage.SHIELD_SIZE;
 
+/**
+ * A specialized UI for Level Two, including boss and shield health bars.
+ */
 public class LevelViewLevelTwo extends LevelView {
 
 	// Updated constants for debugging purposes
@@ -18,6 +21,12 @@ public class LevelViewLevelTwo extends LevelView {
 	protected final Rectangle healthBar;
 	private final Rectangle healthBarBorder;
 
+	/**
+	 * Constructs a new {@code LevelViewLevelTwo}.
+	 *
+	 * @param root the root {@link Group} for the level
+	 * @param heartsToDisplay the initial number of hearts to display
+	 */
 	public LevelViewLevelTwo(Group root, int heartsToDisplay) {
 		super(root, heartsToDisplay, true);
 		this.root = root;
@@ -105,6 +114,12 @@ public class LevelViewLevelTwo extends LevelView {
 	}
 
 
+	/**
+	 * Updates the boss health bar with the current health percentage.
+	 *
+	 * @param currentHealth the current health of the boss
+	 * @param maxHealth the maximum health of the boss
+	 */
 
 	public void updateBossHealthBar(int currentHealth, int maxHealth) {
 		double healthPercentage = (double) currentHealth / maxHealth;
